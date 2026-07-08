@@ -203,6 +203,41 @@ const FlagQuiz = () => {
     }
   };
 
+  // Error sound — a detuned low sawtooth buzz
+  const playError = () => {
+    if (isMutedRef.current) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctx.resume().then(() => {
+        const t = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.type = "sawtooth";
+        osc2.type = "sawtooth";
+
+        osc1.frequency.setValueAtTime(110, t);
+        osc2.frequency.setValueAtTime(113, t);
+
+        gain.gain.setValueAtTime(0.003, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+
+        osc1.start(t);
+        osc2.start(t);
+        osc1.stop(t + 0.22);
+        osc2.stop(t + 0.22);
+        osc1.onended = () => ctx.close();
+      });
+    } catch {
+      /* AudioContext not available */
+    }
+  };
+
   const [isMuted, setIsMuted] = useState(() => {
     return localStorage.getItem("flagQuizMuted") === "true";
   });
@@ -249,6 +284,10 @@ const FlagQuiz = () => {
     const expected = quiz.currentCountry.country.toLowerCase();
 
     if (trimmed !== expected) {
+      playError();
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
       triggerShake();
       return;
     }
