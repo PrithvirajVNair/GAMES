@@ -1,5 +1,4 @@
 import { Ellipsis, Flag } from "lucide-react";
-import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ isOpen, onClose }) => {
