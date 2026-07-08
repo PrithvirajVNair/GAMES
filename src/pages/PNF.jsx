@@ -51,7 +51,7 @@ const PNF = () => {
       orb2Pos.current.y = lerp(orb2Pos.current.y, targetY * 80, 0.04);
 
       cardPos.current.x = lerp(cardPos.current.x, targetX * 25, 0.08);
-      cardPos.current.y = lerp(cardPos.current.y, targetY * 25, 0.088); 
+      cardPos.current.y = lerp(cardPos.current.y, targetY * 25, 0.08); 
 
       starfieldPos.current.x = lerp(starfieldPos.current.x, targetX * 15, 0.06);
       starfieldPos.current.y = lerp(starfieldPos.current.y, targetY * 15, 0.06);
