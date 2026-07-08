@@ -1,0 +1,70 @@
+﻿
+> fqz@0.0.0 lint
+> eslint .
+
+
+C:\Users\pals2\OneDrive\Desktop\FQz\fqz\src\App.jsx
+  1:10  error  'useState' is defined but never used  no-unused-vars
+
+C:\Users\pals2\OneDrive\Desktop\FQz\fqz\src\components\Sidebar.jsx
+  2:8  error  'React' is defined but never used  no-unused-vars
+
+C:\Users\pals2\OneDrive\Desktop\FQz\fqz\src\pages\FlagQuiz.jsx
+  252:3   error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+  250 |   });
+  251 |   const isMutedRef = useRef(isMuted);
+> 252 |   isMutedRef.current = isMuted;
+      |   ^^^^^^^^^^^^^^^^^^ Cannot update ref during render
+  253 |
+  254 |   const toggleMute = () => {
+  255 |     setIsMuted((prev) => {                                                                                                                                                        react-hooks/refs
+  352:43  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  350 |   const handleReset = () => {
+  351 |     localStorage.removeItem("flagQuiz");
+> 352 |     localStorage.setItem("quizStartTime", Date.now().toString());
+      |                                           ^^^^^^^^^^ Cannot call impure function
+  353 |     const shuffled = shuffleArray(countries.data);
+  354 |     const initial = {
+  355 |       score: 0,                                                    react-hooks/purity
+  371:45  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  369 |   const handleResume = () => {
+  370 |     if (!localStorage.getItem("quizStartTime")) {
+> 371 |       localStorage.setItem("quizStartTime", Date.now().toString());
+      |                                             ^^^^^^^^^^ Cannot call impure function
+  372 |     }
+  373 |     // calculate correct elapsed based on existing start time
+  374 |     const start = localStorage.getItem("quizStartTime");  react-hooks/purity
+  376:30  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  374 |     const start = localStorage.getItem("quizStartTime");
+  375 |     if (start) {
+> 376 |       setElapsed(Math.floor((Date.now() - Number(start)) / 1000));
+      |                              ^^^^^^^^^^ Cannot call impure function
+  377 |     }
+  378 |     setStarted(true);
+  379 |   };                                                                                                                     react-hooks/purity
+  383:43  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  381 |   const handleStartNew = () => {
+  382 |     localStorage.removeItem("flagQuiz");
+> 383 |     localStorage.setItem("quizStartTime", Date.now().toString());
+      |                                           ^^^^^^^^^^ Cannot call impure function
+  384 |     const shuffled = shuffleArray(countries.data);
+  385 |     const initial = {
+  386 |       score: 0,                                                 react-hooks/purity
+
+Γ£û 7 problems (7 errors, 0 warnings)
+

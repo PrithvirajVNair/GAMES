@@ -6,10 +6,16 @@ import { Flag } from "lucide-react";
 
 const TOTAL = countries.data.length;
 
-const FlagQuiz = () => {
-  const getRandomCountry = (list) =>
-    list[Math.floor(Math.random() * list.length)];
+const shuffleArray = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
 
+const FlagQuiz = () => {
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
     if (saved) {
@@ -19,10 +25,11 @@ const FlagQuiz = () => {
         /* fall through */
       }
     }
+    const shuffled = shuffleArray(countries.data);
     return {
       score: 0,
-      remainingCountries: countries.data,
-      currentCountry: getRandomCountry(countries.data),
+      remainingCountries: shuffled,
+      currentCountry: shuffled[0],
       answer: "",
     };
   };
@@ -242,7 +249,9 @@ const FlagQuiz = () => {
     return localStorage.getItem("flagQuizMuted") === "true";
   });
   const isMutedRef = useRef(isMuted);
-  isMutedRef.current = isMuted;
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
   const toggleMute = () => {
     setIsMuted((prev) => {
@@ -260,6 +269,13 @@ const FlagQuiz = () => {
   const [gaveUp, setGaveUp] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [started, setStarted] = useState(false);
+
+  // ── Total elapsed timer ──
+  const [elapsed, setElapsed] = useState(() => {
+    const start = localStorage.getItem("quizStartTime");
+    if (!start) return 0;
+    return Math.floor((Date.now() - Number(start)) / 1000);
+  });
 
   const hasSavedProgress = React.useMemo(() => {
     const saved = localStorage.getItem("flagQuiz");
@@ -312,7 +328,7 @@ const FlagQuiz = () => {
       setQuiz({
         score: quiz.score + 1,
         remainingCountries: updatedCountries,
-        currentCountry: getRandomCountry(updatedCountries),
+        currentCountry: updatedCountries[0],
         answer: "",
       });
     }, 600);
@@ -322,21 +338,32 @@ const FlagQuiz = () => {
     playAssistMe();
     setHint(false);
     setImgLoaded(false);
-    setQuiz({
-      ...quiz,
-      currentCountry: getRandomCountry(quiz.remainingCountries),
-      answer: "",
-    });
+    if (quiz.remainingCountries.length > 1) {
+      const [current, ...rest] = quiz.remainingCountries;
+      const updatedCountries = [...rest, current];
+      setQuiz({
+        ...quiz,
+        remainingCountries: updatedCountries,
+        currentCountry: updatedCountries[0],
+        answer: "",
+      });
+    } else {
+      setQuiz({
+        ...quiz,
+        answer: "",
+      });
+    }
     inputRef.current?.focus();
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
+    const shuffled = shuffleArray(countries.data);
     const initial = {
       score: 0,
-      remainingCountries: countries.data,
-      currentCountry: getRandomCountry(countries.data),
+      remainingCountries: shuffled,
+      currentCountry: shuffled[0],
       answer: "",
     };
     setQuiz(initial);
@@ -346,9 +373,9 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  };
+  }, []);
 
-  const handleResume = () => {
+  const handleResume = useCallback(() => {
     if (!localStorage.getItem("quizStartTime")) {
       localStorage.setItem("quizStartTime", Date.now().toString());
     }
@@ -358,15 +385,16 @@ const FlagQuiz = () => {
       setElapsed(Math.floor((Date.now() - Number(start)) / 1000));
     }
     setStarted(true);
-  };
+  }, []);
 
-  const handleStartNew = () => {
+  const handleStartNew = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
+    const shuffled = shuffleArray(countries.data);
     const initial = {
       score: 0,
-      remainingCountries: countries.data,
-      currentCountry: getRandomCountry(countries.data),
+      remainingCountries: shuffled,
+      currentCountry: shuffled[0],
       answer: "",
     };
     setQuiz(initial);
@@ -376,18 +404,13 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("flagQuiz", JSON.stringify(quiz));
   }, [quiz]);
 
-  // ── Total elapsed timer ──
-  const [elapsed, setElapsed] = useState(() => {
-    const start = localStorage.getItem("quizStartTime");
-    if (!start) return 0;
-    return Math.floor((Date.now() - Number(start)) / 1000);
-  });
+
 
   useEffect(() => {
     if (!started || completed || gaveUp) return; // freeze when not started or done
