@@ -1,4 +1,4 @@
-import { Ellipsis, Flag } from "lucide-react";
+import { Ellipsis, Flag, MapPinned, Home } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -7,17 +7,23 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const menuItems = [
     {
+      id: "home",
+      title: "Main Menu",
+      path: "/",
+      status: "playable",
+    },
+    {
       id: "flag-quiz",
       title: "Flag Quiz",
-      path: "/",
+      path: "/flag-quiz",
       status: "playable",
       // desc: "Identify 196 world flags",
     },
     {
-      id: "capitals-quiz",
-      title: "Coming Soon",
-      path: "/capitals-quiz",
-      status: "coming-soon",
+      id: "country-shape-quiz",
+      title: "Country Shape Quiz",
+      path: "/country-shape-quiz",
+      status: "playable",
       // desc: "Match capitals of the world",
     },
     {
@@ -202,7 +208,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="fq-sidebar-list">
           {menuItems.map((item) => {
             const isPlayable = item.status === "playable";
-            const isActive = location.pathname === item.path || (item.path === "/flag-quiz" && location.pathname === "/");
+            const isActive = location.pathname === item.path;
             
             return (
               <div
@@ -218,7 +224,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               >
                 <div className="fq-sidebar-item-left">
                   <span className="fq-sidebar-item-icon text-white">
-                    {item.id === "flag-quiz" ? <Flag /> : item.id === "capitals-quiz" ? <Ellipsis /> : <Ellipsis />}
+                    {item.id === "home" ? <Home /> : item.id === "flag-quiz" ? <Flag /> : item.id === "country-shape-quiz" ? <MapPinned /> : <Ellipsis />}
                   </span>
                   <div className="fq-sidebar-item-details">
                     <span className="fq-sidebar-item-name">

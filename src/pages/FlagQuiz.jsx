@@ -509,10 +509,19 @@ const FlagQuiz = () => {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 1.5rem;
+          width: 100%;
+          gap: 0.5rem;
+        }
+
+        .fq-title-container {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #a78bfa;
         }
 
         .fq-title {
-          font-size: clamp(1.1rem, 3vw, 1.4rem);
+          font-size: clamp(1rem, 2.5vw, 1.25rem);
           font-weight: 800;
           background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6);
           -webkit-background-clip: text;
@@ -852,26 +861,51 @@ const FlagQuiz = () => {
           .fq-actions { gap: 0.4rem; }
           .fq-btn { font-size: 0.76rem; padding: 0.6rem 0.2rem; }
           .fq-header {
-            flex-direction: column;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
             align-items: center;
             gap: 0.5rem;
+            margin-bottom: 1rem;
+          }
+          .fq-title-container {
+            gap: 0.35rem;
+          }
+          .fq-title-container svg {
+            width: 16px;
+            height: 16px;
+          }
+          .fq-title {
+            font-size: 0.95rem;
+          }
+          .fq-header-right {
+            justify-content: flex-end;
+            gap: 0.35rem;
+          }
+          .fq-mute-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+          }
+          .fq-timer-badge, .fq-score-badge {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+          }
+        }
+        @media (max-width: 360px) {
+          .fq-header {
+            justify-content: center;
+            gap: 0.4rem;
+          }
+          .fq-title-container {
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 0.1rem;
           }
           .fq-header-right {
             width: 100%;
             justify-content: center;
-            gap: 0.4rem;
-          }
-          .fq-mute-btn {
-            width: 32px;
-            height: 32px;
-            font-size: 0.8rem;
-          }
-          .fq-timer-badge, .fq-score-badge {
-            padding: 0.25rem 0.7rem;
-            font-size: 0.75rem;
-          }
-          .fq-title {
-            font-size: 1.3rem;
           }
         }
         @media (max-width: 320px) {
@@ -1156,8 +1190,9 @@ const FlagQuiz = () => {
             <>
               {/* Header */}
               <div className="fq-header">
-                <div className="fq-title flex items-center gap-3 text-white">
-                  <Flag size={20} /> Flag Quiz
+                <div className="fq-title-container text-white">
+                  <Flag size={20} className="text-violet-400" />
+                  <span className="fq-title">Flag Quiz</span>
                 </div>
                 <div className="fq-header-right">
                   <button
