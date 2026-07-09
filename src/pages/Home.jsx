@@ -399,7 +399,7 @@ const Home = () => {
                   </clipPath>
                 </defs>
                 <foreignObject x="0" y="0" width="1200" height="200" clipPath="url(#title-clip)" className="w-full h-full">
-                  <div className="w-full h-full bg-[linear-gradient(135deg,#fff_30%,#c7d2fe_70%,#818cf8_100%)] relative">
+                  <div className="w-full h-full relative">
                     <video
                       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                       src="/title.webm"
