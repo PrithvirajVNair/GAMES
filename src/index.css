@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+.roboto {
+    font-family: "Roboto", sans-serif;
+}
+
+.mogra {
+    font-family: "Mogra", system-ui;
+}
+
+.anton {
+    font-family: "Anton", sans-serif;
+}
+
+.dm-sans {
+    font-family: "DM Sans", sans-serif;
+}
+
+.inter {
+    font-family: "Inter", sans-serif;
+}
+
+.bebas-neue {
+    font-family: "Bebas Neue", sans-serif;
+}

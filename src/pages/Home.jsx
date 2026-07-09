@@ -1,86 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flag, MapPinned, Globe, Compass, Ellipse, Eclipse, Ellipsis } from "lucide-react";
+import { Flag, MapPinned, Ellipsis } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const Home = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Drift + subtle mouse influence for background orbs
-  const orb1Ref = useRef(null);
-  const orb2Ref = useRef(null);
-  const rafRef = useRef(null);
-  const mouseRef = useRef({ x: 0.5, y: 0.5 });
-  const orb1Cur = useRef({ x: 20, y: 18 });
-  const orb2Cur = useRef({ x: 55, y: 58 });
-
-  useEffect(() => {
-    const onMove = (e) => {
-      mouseRef.current = {
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      };
-    };
-    window.addEventListener("mousemove", onMove);
-
-    const orb1Anchor = { x: 20, y: 18 };
-    const orb2Anchor = { x: 55, y: 58 };
-    const driftAmt = 3;
-    const mouseAmt = 4;
-    const speed1 = 0.00018;
-    const speed2 = 0.00013;
-    const lerpSpeed = 0.025;
-
-    const lerp = (a, b, t) => a + (b - a) * t;
-    let startTime = null;
-
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const t = timestamp - startTime;
-      const mx = mouseRef.current.x;
-      const my = mouseRef.current.y;
-
-      const t1x =
-        orb1Anchor.x +
-        Math.sin(t * speed1) * driftAmt +
-        (mx - 0.5) * mouseAmt * 2;
-      const t1y =
-        orb1Anchor.y +
-        Math.cos(t * speed1 * 0.7) * driftAmt +
-        (my - 0.5) * mouseAmt * 2;
-      orb1Cur.current.x = lerp(orb1Cur.current.x, t1x, lerpSpeed);
-      orb1Cur.current.y = lerp(orb1Cur.current.y, t1y, lerpSpeed);
-
-      const t2x =
-        orb2Anchor.x +
-        Math.sin(t * speed2 + 2) * driftAmt -
-        (mx - 0.5) * mouseAmt * 2;
-      const t2y =
-        orb2Anchor.y +
-        Math.cos(t * speed2 * 0.8 + 1) * driftAmt -
-        (my - 0.5) * mouseAmt * 2;
-      orb2Cur.current.x = lerp(orb2Cur.current.x, t2x, lerpSpeed);
-      orb2Cur.current.y = lerp(orb2Cur.current.y, t2y, lerpSpeed);
-
-      if (orb1Ref.current) {
-        orb1Ref.current.style.left = `${orb1Cur.current.x}%`;
-        orb1Ref.current.style.top = `${orb1Cur.current.y}%`;
-      }
-      if (orb2Ref.current) {
-        orb2Ref.current.style.left = `${orb2Cur.current.x}%`;
-        orb2Ref.current.style.top = `${orb2Cur.current.y}%`;
-      }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
 
   return (
     <>
@@ -102,23 +27,6 @@ const Home = () => {
           box-sizing: border-box;
         }
 
-        /* Ambient Glow Orbs */
-        .fq-home-orb {
-          position: absolute;
-          width: clamp(250px, 45vw, 550px);
-          height: clamp(250px, 45vw, 550px);
-          border-radius: 50%;
-          filter: blur(120px);
-          opacity: 0.15;
-          pointer-events: none;
-          z-index: 1;
-        }
-        .fq-home-orb-1 {
-          background: radial-gradient(circle, #6366f1, #8b5cf6);
-        }
-        .fq-home-orb-2 {
-          background: radial-gradient(circle, #ec4899, #d946ef);
-        }
 
         /* Top Header Area */
         .fq-home-header {
@@ -142,17 +50,7 @@ const Home = () => {
           letter-spacing: 1px;
           text-transform: uppercase;
         }
-        .fq-home-title {
-          font-size: clamp(2.2rem, 6vw, 3.8rem);
-          font-weight: 900;
-          background: linear-gradient(135deg, #fff 30%, #c7d2fe 70%, #818cf8 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin: 0;
-          letter-spacing: -1.5px;
-          line-height: 1.1;
-        }
+
         .fq-home-subtitle {
           font-size: clamp(0.9rem, 2.5vw, 1.1rem);
           color: rgba(255, 255, 255, 0.55);
@@ -375,16 +273,74 @@ const Home = () => {
             font-size: 0.76rem;
           }
           .fq-home-root {
-            padding-top: 5rem;
+            padding: 5rem 1rem 3rem 1rem;
           }
           .fq-home-header {
             margin-bottom: 2.5rem;
           }
           .fq-home-grid {
-            gap: 1.5rem;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
           }
           .fq-home-card {
-            padding: 1.75rem 1.5rem;
+            padding: 1.75rem 1.25rem;
+          }
+        }
+
+        /* Shooting Stars */
+        .fq-shooting-star {
+          position: absolute;
+          left: var(--star-left);
+          top: var(--star-top);
+          height: 0.8px;
+          background: linear-gradient(90deg, #ffffff, rgba(167, 139, 250, 0.4), transparent);
+          filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.7));
+          opacity: 0;
+          transform: rotate(-40deg);
+          animation: fq-star-anim 5s linear infinite;
+          animation-delay: var(--star-delay);
+          transform-origin: left center;
+        }
+
+        @keyframes fq-star-anim {
+          0% {
+            width: 0;
+            transform: translate3d(0, 0, 0) rotate(-40deg);
+            opacity: 0;
+          }
+          10% {
+            width: 30px;
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            width: 0;
+            transform: translate3d(-260px, 220px, 0) rotate(-40deg);
+            opacity: 0;
+          }
+        }
+
+        @media (max-width: 768px) {
+          @keyframes fq-star-anim {
+            0% {
+              width: 0;
+              transform: translate3d(0, 0, 0) rotate(-40deg);
+              opacity: 0;
+            }
+            10% {
+              width: 20px;
+              opacity: 1;
+            }
+            90% {
+              opacity: 1;
+            }
+            100% {
+              width: 0;
+              transform: translate3d(-130px, 110px, 0) rotate(-40deg);
+              opacity: 0;
+            }
           }
         }
       `}</style>
@@ -402,73 +358,127 @@ const Home = () => {
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Moving Background Orbs */}
-        <div ref={orb1Ref} className="fq-home-orb fq-home-orb-1" />
-        <div ref={orb2Ref} className="fq-home-orb fq-home-orb-2" />
 
-        {/* Hero Header */}
-        <div className="fq-home-header">
-          <h1 className="fq-home-title">FQz Games</h1>
-          <p className="fq-home-subtitle">
-            Fun & challenging games that test your visual memory and knowledge
-            of flags and country shapes, etc.
-          </p>
+        {/* Shooting Stars (restricted height to keep stars above card grid) */}
+        <div className="absolute top-0 left-0 right-0 h-[142px] md:h-[360px] overflow-hidden pointer-events-none z-0">
+          {/* Left Side Stars */}
+          <div className="fq-shooting-star" style={{ "--star-left": "15%", "--star-top": "-10%", "--star-delay": "0s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "30%", "--star-top": "-5%", "--star-delay": "1.8s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "45%", "--star-top": "10%", "--star-delay": "3.5s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "20%", "--star-top": "25%", "--star-delay": "0.8s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "35%", "--star-top": "15%", "--star-delay": "2.7s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "50%", "--star-top": "-10%", "--star-delay": "4.8s" }} />
+
+          {/* Right Side Stars */}
+          <div className="fq-shooting-star" style={{ "--star-left": "65%", "--star-top": "10%", "--star-delay": "1.2s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "80%", "--star-top": "-5%", "--star-delay": "2.2s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "95%", "--star-top": "20%", "--star-delay": "0.5s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "70%", "--star-top": "25%", "--star-delay": "3.9s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "85%", "--star-top": "15%", "--star-delay": "1.6s" }} />
+          <div className="fq-shooting-star" style={{ "--star-left": "90%", "--star-top": "-10%", "--star-delay": "4.1s" }} />
         </div>
 
-        {/* Card Grid */}
-        <div className="fq-home-grid">
-          {/* Card: Flag Quiz */}
-          <div
-            className="fq-home-card fq-card-flag"
-          >
-            <div className="fq-card-icon-wrap">
-              <Flag size={24} />
+        <div className="flex flex-col justify-center items-center gap-12 md:gap-20 w-full max-w-7xl mx-auto px-2">
+          {/* Hero Header */}
+          <div className="text-center max-w-none px-4 flex flex-col items-center w-full">
+            <div className="relative w-full max-w-[1200px] h-[clamp(55px,15vw,150px)] mx-auto flex items-center justify-center select-none">
+              <svg viewBox="0 0 1200 200" className="w-full h-full">
+                <defs>
+                  <clipPath id="title-clip">
+                    <text
+                      x="50%"
+                      y="58%"
+                      dominantBaseline="middle"
+                      textAnchor="middle"
+                      fontSize="200"
+                      fontWeight="500"
+                      className="bebas-neue tracking-wide"
+                    >
+                      FQz Games
+                    </text>
+                  </clipPath>
+                </defs>
+                <foreignObject x="0" y="0" width="1200" height="200" clipPath="url(#title-clip)" className="w-full h-full">
+                  <div className="w-full h-full bg-[linear-gradient(135deg,#fff_30%,#c7d2fe_70%,#818cf8_100%)] relative">
+                    <video
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      src="/title.webm"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  </div>
+                </foreignObject>
+              </svg>
             </div>
-            <div className="fq-card-body">
-              <span className="fq-card-tag">Interactive Quiz</span>
-              <h2 className="fq-card-name">Flag Quiz</h2>
-              <p className="fq-card-desc">
-                Identify all 196 flags of the world. Race against the timer,
-                reveal length tips, and aim for a perfect streak.
-              </p>
-            </div>
-            <button className="fq-card-btn" onClick={() => navigate("/flag-quiz")}>Play Flag Quiz ➔</button>
+            <p className="text-center font-medium text-sm sm:text-base md:text-lg text-white/70 mt-4 md:mt-6 leading-relaxed max-w-xl">
+              Fun & challenging games that test your visual memory and knowledge
+              of flags and country shapes.
+            </p>
           </div>
 
-          {/* Card: Country Shape Quiz */}
-          <div
-            className="fq-home-card fq-card-shape"
-          >
-            <div className="fq-card-icon-wrap">
-              <MapPinned size={24} />
+          {/* Card Grid */}
+          <div className="fq-home-grid">
+            {/* Card: Flag Quiz */}
+            <div className="fq-home-card fq-card-flag">
+              <div className="fq-card-icon-wrap">
+                <Flag size={24} />
+              </div>
+              <div className="fq-card-body">
+                <span className="fq-card-tag">Interactive Quiz</span>
+                <h2 className="fq-card-name">Flag Quiz</h2>
+                <p className="fq-card-desc">
+                  Identify all 196 flags of the world. Race against the timer,
+                  reveal length tips, and aim for a perfect streak.
+                </p>
+              </div>
+              <button
+                className="fq-card-btn"
+                onClick={() => navigate("/flag-quiz")}
+              >
+                Play Flag Quiz ➔
+              </button>
             </div>
-            <div className="fq-card-body">
-              <span className="fq-card-tag">Silhouette Quiz</span>
-              <h2 className="fq-card-name">Country Shape Quiz</h2>
-              <p className="fq-card-desc">
-                Guess countries purely by their border outlines! A spatial test
-                using sleek vector silhouettes.
-              </p>
-            </div>
-            <button className="fq-card-btn" onClick={() => navigate("/country-shape-quiz")}>Play Shape Quiz ➔</button>
-          </div>
 
-          {/* Card: Map Location Quiz (Soon) */}
-          <div className="fq-home-card fq-card-soon">
-            <div className="fq-card-icon-wrap">
-              <Ellipsis size={24} />
+            {/* Card: Country Shape Quiz */}
+            <div className="fq-home-card fq-card-shape">
+              <div className="fq-card-icon-wrap">
+                <MapPinned size={24} />
+              </div>
+              <div className="fq-card-body">
+                <span className="fq-card-tag">Silhouette Quiz</span>
+                <h2 className="fq-card-name">Country Shape Quiz</h2>
+                <p className="fq-card-desc">
+                  Guess countries purely by their border outlines! A spatial
+                  test using sleek vector silhouettes.
+                </p>
+              </div>
+              <button
+                className="fq-card-btn"
+                onClick={() => navigate("/country-shape-quiz")}
+              >
+                Play Shape Quiz ➔
+              </button>
             </div>
-            <div className="fq-card-body">
-              <span className="fq-card-tag">Coming Soon</span>
-              <h2 className="fq-card-name">New Game</h2>
-              <p className="fq-card-desc">
-                A new challenge is currently in development. Stay tuned for the
-                next release.
-              </p>
+
+            {/* Card: Map Location Quiz (Soon) */}
+            <div className="fq-home-card fq-card-soon">
+              <div className="fq-card-icon-wrap">
+                <Ellipsis size={24} />
+              </div>
+              <div className="fq-card-body">
+                <span className="fq-card-tag">Coming Soon</span>
+                <h2 className="fq-card-name">New Game</h2>
+                <p className="fq-card-desc">
+                  A new challenge is currently in development. Stay tuned for
+                  the next release.
+                </p>
+              </div>
+              <button className="fq-card-btn" disabled>
+                Locked
+              </button>
             </div>
-            <button className="fq-card-btn" disabled>
-              Locked
-            </button>
           </div>
         </div>
       </div>
