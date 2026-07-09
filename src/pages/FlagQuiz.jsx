@@ -410,8 +410,6 @@ const FlagQuiz = () => {
     localStorage.setItem("flagQuiz", JSON.stringify(quiz));
   }, [quiz]);
 
-
-
   useEffect(() => {
     if (!started || completed || gaveUp) return; // freeze when not started or done
     const id = setInterval(() => {
