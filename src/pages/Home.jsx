@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flag, MapPinned, Gamepad2 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import countries from "../utils/countries";
+import logos from "../utils/logos";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -119,7 +121,7 @@ const Home = () => {
                   Flag Quiz
                 </h2>
                 <p className="text-[0.88rem] text-white/45 leading-[1.5] m-0">
-                  Identify all 196 flags of the world. Race against the timer,
+                  Identify all {countries.data.length} flags of the world. Race against the timer,
                   reveal length tips, and aim for a perfect streak.
                 </p>
               </div>
