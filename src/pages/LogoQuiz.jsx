@@ -371,7 +371,7 @@ const LogoQuiz = () => {
               {[
                 {
                   icon: "🏢",
-                  title: "10 Iconic Brands",
+                  title: `${TOTAL} Iconic Brands`,
                   desc: "From tech giants to gaming platforms.",
                 },
                 {
