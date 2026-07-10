@@ -238,7 +238,7 @@ const FlagQuiz = () => {
   };
   // Auto-advance if the answer is correct
   useEffect(() => {
-    if (!quiz.answer || !quiz.currentCountry || correct) return;
+    if (!quiz.answer || !quiz.currentCountry) return;
     const tr = quiz.answer.trim().toLowerCase();
     const ex = quiz.currentCountry.country.toLowerCase();
     if (tr === ex) {
@@ -267,7 +267,7 @@ const FlagQuiz = () => {
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [quiz.answer, quiz.currentCountry, correct]);
+  }, [quiz.answer, quiz.currentCountry.country]);
 
   const handleNext = useCallback(() => {
     if (correct) return;
