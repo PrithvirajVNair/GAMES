@@ -446,6 +446,11 @@ const countries = {
       "flag": "https://flagcdn.com/w320/ki.png"
     },
     {
+      "country": "Kosovo",
+      "code": "xk",
+      "flag": "https://flagcdn.com/w320/xk.png"
+    },
+    {
       "country": "Kuwait",
       "code":"kw",
       "flag": "https://flagcdn.com/w320/kw.png"
