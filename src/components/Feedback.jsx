@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
-import { MessageSquare, X, Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  MessageSquare,
+  X,
+  Send,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 export default function Feedback() {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +90,9 @@ export default function Feedback() {
 
     if (!serviceId || !templateId || !publicKey) {
       console.error("EmailJS environment variables are missing.");
-      setErrorMessage("Feedback setup is incomplete. Please check environment variables.");
+      setErrorMessage(
+        "Feedback setup is incomplete. Please check environment variables.",
+      );
       setStatus("error");
       return;
     }
@@ -104,7 +113,8 @@ export default function Feedback() {
     } catch (err) {
       console.error("EmailJS Error:", err);
       setErrorMessage(
-        err?.text || "An unexpected error occurred while sending your feedback. Please try again."
+        err?.text ||
+          "An unexpected error occurred while sending your feedback. Please try again.",
       );
       setStatus("error");
     }
@@ -155,9 +165,12 @@ export default function Feedback() {
                   <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-full mb-4 border border-emerald-500/20">
                     <CheckCircle2 className="w-12 h-12" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Feedback Received!</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Feedback Received!
+                  </h3>
                   <p className="text-zinc-400 text-sm mb-6 max-w-xs">
-                    Thank you for helping us improve FQz Games. Your input has been sent directly to us!
+                    Thank you for helping us improve FQz Games. Your input has
+                    been sent directly to us!
                   </p>
                   <button
                     onClick={handleClose}
@@ -170,9 +183,12 @@ export default function Feedback() {
                 /* Form View */
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Feedback & Suggestions</h3>
+                    <h3 className="text-lg font-bold text-white mb-1">
+                      Feedback & Suggestions
+                    </h3>
                     <p className="text-xs text-zinc-400">
-                      Found a bug, want a feature, or have a suggestion? Let us know below!
+                      Found a bug, want a feature, or have a suggestion? Let us
+                      know below!
                     </p>
                   </div>
 
@@ -181,14 +197,18 @@ export default function Feedback() {
                     <div className="flex items-start gap-2.5 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold">Error:</span> {errorMessage}
+                        <span className="font-semibold">Error:</span>{" "}
+                        {errorMessage}
                       </div>
                     </div>
                   )}
 
                   {/* Category Dropdown */}
                   <div className="space-y-1.5">
-                    <label htmlFor="category" className="text-xs font-semibold text-zinc-300">
+                    <label
+                      htmlFor="category"
+                      className="text-xs font-semibold text-zinc-300"
+                    >
                       Category <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -199,18 +219,28 @@ export default function Feedback() {
                       required
                       disabled={status === "loading"}
                     >
-                      <option value="" disabled>Select a category</option>
+                      <option value="" disabled>
+                        Select a category
+                      </option>
                       <option value="Suggestion">💡 Suggestion</option>
                       <option value="Bug Report">🐛 Bug Report</option>
-                      <option value="Feature Request">🚀 Feature Request</option>
+                      <option value="Feature Request">
+                        🚀 Feature Request
+                      </option>
                       <option value="Other">❓ Other</option>
                     </select>
                   </div>
 
                   {/* Email Input */}
                   <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-xs font-semibold text-zinc-300">
-                      Email Address <span className="text-zinc-500 text-[10px]">(Optional)</span>
+                    <label
+                      htmlFor="email"
+                      className="text-xs font-semibold text-zinc-300"
+                    >
+                      Email Address{" "}
+                      <span className="text-zinc-500 text-[10px]">
+                        (Optional)
+                      </span>
                     </label>
                     <input
                       type="email"
@@ -225,7 +255,10 @@ export default function Feedback() {
 
                   {/* Message Input */}
                   <div className="space-y-1.5">
-                    <label htmlFor="message" className="text-xs font-semibold text-zinc-300">
+                    <label
+                      htmlFor="message"
+                      className="text-xs font-semibold text-zinc-300"
+                    >
                       Message <span className="text-red-500">*</span>
                     </label>
                     <textarea

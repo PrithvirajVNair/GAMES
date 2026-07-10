@@ -1,4 +1,4 @@
-import { Ellipsis, Flag, MapPinned, Home } from "lucide-react";
+import { Ellipsis, Flag, MapPinned, Home, Gamepad2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -6,251 +6,119 @@ const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
 
   const menuItems = [
-    {
-      id: "home",
-      title: "Main Menu",
-      path: "/",
-      status: "playable",
-    },
+    { id: "home", title: "Main Menu", path: "/", status: "playable" },
     {
       id: "flag-quiz",
       title: "Flag Quiz",
       path: "/flag-quiz",
       status: "playable",
-      // desc: "Identify 196 world flags",
     },
     {
       id: "country-shape-quiz",
       title: "Country Shape Quiz",
       path: "/country-shape-quiz",
       status: "playable",
-      // desc: "Match capitals of the world",
     },
     {
       id: "map-quiz",
       title: "Coming Soon",
       path: "/map-quiz",
       status: "coming-soon",
-      // desc: "Locate countries on a map",
     },
   ];
 
+  const iconFor = (id) => {
+    if (id === "home") return <Home />;
+    if (id === "flag-quiz") return <Flag />;
+    if (id === "country-shape-quiz") return <MapPinned />;
+    return <Ellipsis />;
+  };
+
   return (
     <>
-      <style>{`
-        /* Sidebar Drawer Styling */
-        .fq-sidebar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          width: 320px;
-          background: rgba(10, 15, 30, 0.75);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
-          border-right: 1px solid rgba(255, 255, 255, 0.08);
-          z-index: 100;
-          transform: translateX(-100%);
-          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          padding: 2rem 1.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-        .fq-sidebar.open {
-          transform: translateX(0);
-          box-shadow: 20px 0 80px rgba(0, 0, 0, 0.6);
-        }
-        
-        .fq-sidebar-backdrop {
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.4);
-          backdrop-filter: blur(2px);
-          -webkit-backdrop-filter: blur(2px);
-          z-index: 99;
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-        }
-        .fq-sidebar-backdrop.visible {
-          opacity: 1;
-          pointer-events: auto;
-        }
-
-        .fq-sidebar-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: 1rem;
-        }
-
-        .fq-sidebar-title {
-          font-size: 1.3rem;
-          font-weight: 800;
-          color: #fff;
-          letter-spacing: -0.5px;
-          background: linear-gradient(90deg, #a78bfa, #60a5fa);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .fq-sidebar-close-btn {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: rgba(255, 255, 255, 0.6);
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 0.95rem;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          outline: none;
-        }
-
-        .fq-sidebar-close-btn:hover {
-          background: rgba(255, 255, 255, 0.12);
-          color: #fff;
-          border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .fq-sidebar-close-btn:active {
-          transform: scale(0.9);
-        }
-
-        .fq-sidebar-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.8rem;
-        }
-
-        .fq-sidebar-item {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1.5px solid rgba(255, 255, 255, 0.08);
-          border-radius: 14px;
-          padding: 1rem 1.1rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .fq-sidebar-item:hover:not(.disabled) {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.18);
-          transform: translateY(-1px);
-        }
-
-        .fq-sidebar-item.active {
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-          border-color: rgba(99, 102, 241, 0.4);
-          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
-        }
-
-        .fq-sidebar-item.disabled {
-          opacity: 0.45;
-        }
-
-        .fq-sidebar-item-left {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .fq-sidebar-item-icon {
-          font-size: 1.3rem;
-        }
-
-        .fq-sidebar-item-details {
-          display: flex;
-          flex-direction: column;
-          gap: 0.15rem;
-        }
-
-        .fq-sidebar-item-name {
-          font-size: 0.88rem;
-          font-weight: 700;
-          color: rgba(255, 255, 255, 0.85);
-          transition: color 0.2s;
-        }
-        .fq-sidebar-item.active .fq-sidebar-item-name {
-          color: #fff;
-        }
-
-        .fq-sidebar-item-desc {
-          font-size: 0.72rem;
-          color: rgba(255, 255, 255, 0.4);
-        }
-
-        .fq-sidebar-item-right {
-          font-size: 0.85rem;
-          color: rgba(255, 255, 255, 0.5);
-        }
-
-        @media (max-width: 480px) {
-          .fq-sidebar {
-            width: 280px;
-            padding: 1.5rem 1.25rem;
-          }
-        }
-      `}</style>
-
-      <div className={`fq-sidebar ${isOpen ? "open" : ""}`}>
-        <div className="fq-sidebar-header">
-          <span className="fq-sidebar-title">🎮 Games Hub</span>
-          <button className="fq-sidebar-close-btn" onClick={onClose} aria-label="Close Sidebar">✕</button>
+      {/* Sidebar Drawer */}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 w-80 max-sm:w-[280px] bg-[rgba(10,15,30,0.75)] backdrop-blur-[30px] border-r border-white/8 z-[100] flex flex-col gap-8 p-8 max-sm:p-6 transition-transform duration-[350ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isOpen
+            ? "translate-x-0 shadow-[20px_0_80px_rgba(0,0,0,0.6)]"
+            : "-translate-x-full"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+            <Gamepad2 style={{ color: "#fff" }} />
+            <span className="text-[1.3rem] font-extrabold tracking-tight bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+             Games Hub
+            </span>
+          </div>
+          <button
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/12 text-white/60 text-[0.95rem] cursor-pointer outline-none transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-white/12 hover:text-white hover:border-white/25 active:scale-90"
+            onClick={onClose}
+            aria-label="Close Sidebar"
+          >
+            ✕
+          </button>
         </div>
-        
-        <div className="fq-sidebar-list">
+
+        {/* Menu Items */}
+        <div className="flex flex-col gap-3">
           {menuItems.map((item) => {
             const isPlayable = item.status === "playable";
             const isActive = location.pathname === item.path;
-            
+
             return (
               <div
                 key={item.id}
-                className={`fq-sidebar-item ${isActive ? "active" : ""} ${!isPlayable ? "disabled" : ""}`}
+                className={`flex items-center justify-between px-[1.1rem] py-4 border-[1.5px] transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                  isActive
+                    ? "bg-[linear-gradient(135deg,rgba(99,102,241,0.15)_0%,rgba(139,92,246,0.15)_100%)] border-indigo-500/40 shadow-[0_4px_15px_rgba(99,102,241,0.15)]"
+                    : "bg-white/[0.03] border-white/8"
+                } ${
+                  !isPlayable
+                    ? "opacity-45 cursor-not-allowed"
+                    : "cursor-pointer hover:bg-white/8 hover:border-white/18 hover:-translate-y-px"
+                }`}
                 onClick={() => {
                   if (isPlayable) {
                     navigate(item.path);
                     onClose();
                   }
                 }}
-                style={{ cursor: isPlayable ? "pointer" : "not-allowed" }}
               >
-                <div className="fq-sidebar-item-left">
-                  <span className="fq-sidebar-item-icon text-white">
-                    {item.id === "home" ? <Home /> : item.id === "flag-quiz" ? <Flag /> : item.id === "country-shape-quiz" ? <MapPinned /> : <Ellipsis />}
+                <div className="flex items-center gap-3">
+                  <span className="text-[1.3rem] text-white">
+                    {iconFor(item.id)}
                   </span>
-                  <div className="fq-sidebar-item-details">
-                    <span className="fq-sidebar-item-name">
+                  <div className="flex flex-col gap-[0.15rem]">
+                    <span
+                      className={`text-[0.88rem] font-bold transition-colors duration-200 ${isActive ? "text-white" : "text-white/85"}`}
+                    >
                       {item.title}
                     </span>
                     {item.desc && (
-                      <span className="fq-sidebar-item-desc">
+                      <span className="text-[0.72rem] text-white/40">
                         {item.desc}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="fq-sidebar-item-right">
-                  {isPlayable ? (
-                    isActive ? "⚡" : "▶"
-                  ) : (
-                    "🔒"
-                  )}
-                </div>
+                <span className="text-[0.85rem] text-white/50">
+                  {isPlayable ? (isActive ? "⚡" : "▶") : "🔒"}
+                </span>
               </div>
             );
           })}
         </div>
-      </div>
+      </aside>
+
+      {/* Backdrop */}
       <div
-        className={`fq-sidebar-backdrop ${isOpen ? "visible" : ""}`}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[99] transition-opacity duration-300 ${
+          isOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
       />
     </>
