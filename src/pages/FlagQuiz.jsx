@@ -621,7 +621,7 @@ const FlagQuiz = () => {
                   onClick={handleNext}
                   disabled={correct}
                 >
-                  Next ➜
+                  Check ➜
                 </button>
               </div>
 
