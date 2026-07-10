@@ -14,6 +14,34 @@ const shuffleArray = (a) => {
   return arr;
 };
 
+const countryAliases = {
+  us: ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
+  tl: ["east timor", "timor leste", "timor lesta"],
+  uk: ["great britain", "uk"],
+};
+
+const isAnswerCorrect = (answerText, countryObj) => {
+  if (!answerText || !countryObj) return false;
+  const typed = answerText.trim().toLowerCase();
+  const code = countryObj.code.toLowerCase();
+  const name = countryObj.country.toLowerCase();
+
+  if (typed === name) return true;
+
+  const aliases = countryAliases[code];
+  if (aliases && aliases.some((alias) => alias.toLowerCase() === typed)) {
+    return true;
+  }
+
+  const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
+  if (sanitize(typed) === sanitize(name)) return true;
+  if (aliases && aliases.some((alias) => sanitize(alias) === sanitize(typed))) {
+    return true;
+  }
+
+  return false;
+};
+
 const FlagQuiz = () => {
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
@@ -38,7 +66,7 @@ const FlagQuiz = () => {
     if (descMeta) {
       descMeta.setAttribute(
         "content",
-        "Test your knowledge of world flags in the FQz Flag Quiz! Guess national flags, track your speed, and beat your high scores."
+        "Test your knowledge of world flags in the FQz Flag Quiz! Guess national flags, track your speed, and beat your high scores.",
       );
     }
   }, []);
@@ -236,38 +264,47 @@ const FlagQuiz = () => {
     setShake(true);
     setTimeout(() => setShake(false), 500);
   };
+  // Auto-advance if the answer is correct
+  useEffect(() => {
+    if (!quiz.answer || !quiz.currentCountry) return;
+    if (isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
+      playDup();
+      setCorrect(true);
+      const timer = setTimeout(() => {
+        setCorrect(false);
+        setHint(false);
+        setImgLoaded(false);
+        setQuiz((prev) => {
+          const u = prev.remainingCountries.filter(
+            (c) => c.country !== prev.currentCountry.country,
+          );
+          if (u.length === 0) {
+            setCompleted(true);
+            localStorage.removeItem("flagQuiz");
+            return prev;
+          }
+          return {
+            score: prev.score + 1,
+            remainingCountries: u,
+            currentCountry: u[0],
+            answer: "",
+          };
+        });
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [quiz.answer, quiz.currentCountry]);
+
   const handleNext = useCallback(() => {
-    const tr = quiz.answer.trim().toLowerCase(),
-      ex = quiz.currentCountry.country.toLowerCase();
-    if (tr !== ex) {
+    if (correct) return;
+    if (!isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
       playError();
       if (typeof navigator !== "undefined" && navigator.vibrate)
         navigator.vibrate([100, 50, 100]);
       triggerShake();
       return;
     }
-    playDup();
-    setCorrect(true);
-    setTimeout(() => {
-      setCorrect(false);
-      setHint(false);
-      setImgLoaded(false);
-      const u = quiz.remainingCountries.filter(
-        (c) => c.country !== quiz.currentCountry.country,
-      );
-      if (u.length === 0) {
-        setCompleted(true);
-        localStorage.removeItem("flagQuiz");
-        return;
-      }
-      setQuiz({
-        score: quiz.score + 1,
-        remainingCountries: u,
-        currentCountry: u[0],
-        answer: "",
-      });
-    }, 600);
-  }, [quiz]);
+  }, [quiz, correct]);
   const handleSkip = () => {
     playAssistMe();
     setHint(false);
@@ -608,7 +645,7 @@ const FlagQuiz = () => {
                   onClick={handleNext}
                   disabled={correct}
                 >
-                  Next ➜
+                  Check ➜
                 </button>
               </div>
 

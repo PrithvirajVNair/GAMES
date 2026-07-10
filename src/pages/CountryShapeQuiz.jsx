@@ -14,6 +14,33 @@ const shuffleArray = (a) => {
   return arr;
 };
 
+const countryAliases = {
+  us: ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
+  tl: ["east timor", "timor leste", "timor lesta"],
+};
+
+const isAnswerCorrect = (answerText, countryObj) => {
+  if (!answerText || !countryObj) return false;
+  const typed = answerText.trim().toLowerCase();
+  const code = countryObj.code.toLowerCase();
+  const name = countryObj.country.toLowerCase();
+
+  if (typed === name) return true;
+
+  const aliases = countryAliases[code];
+  if (aliases && aliases.some((alias) => alias.toLowerCase() === typed)) {
+    return true;
+  }
+
+  const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
+  if (sanitize(typed) === sanitize(name)) return true;
+  if (aliases && aliases.some((alias) => sanitize(alias) === sanitize(typed))) {
+    return true;
+  }
+
+  return false;
+};
+
 const CountryShapeQuiz = () => {
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("shapeQuiz");
@@ -38,7 +65,7 @@ const CountryShapeQuiz = () => {
     if (descMeta) {
       descMeta.setAttribute(
         "content",
-        "Test your geography skills by guessing country shapes! Can you identify a country purely by its border silhouette in FQz Games?"
+        "Test your geography skills by guessing country shapes! Can you identify a country purely by its border silhouette in FQz Games?",
       );
     }
   }, []);
@@ -248,38 +275,47 @@ const CountryShapeQuiz = () => {
     setShake(true);
     setTimeout(() => setShake(false), 500);
   };
+  // Auto-advance if the answer is correct
+  useEffect(() => {
+    if (!quiz.answer || !quiz.currentCountry) return;
+    if (isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
+      playDup();
+      setCorrect(true);
+      const timer = setTimeout(() => {
+        setCorrect(false);
+        setHint(false);
+        setImgLoaded(false);
+        setQuiz((prev) => {
+          const u = prev.remainingCountries.filter(
+            (c) => c.country !== prev.currentCountry.country,
+          );
+          if (u.length === 0) {
+            setCompleted(true);
+            localStorage.removeItem("shapeQuiz");
+            return prev;
+          }
+          return {
+            score: prev.score + 1,
+            remainingCountries: u,
+            currentCountry: u[0],
+            answer: "",
+          };
+        });
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [quiz.answer, quiz.currentCountry]);
+
   const handleNext = useCallback(() => {
-    const tr = quiz.answer.trim().toLowerCase(),
-      ex = quiz.currentCountry.country.toLowerCase();
-    if (tr !== ex) {
+    if (correct) return;
+    if (!isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
       playError();
       if (typeof navigator !== "undefined" && navigator.vibrate)
         navigator.vibrate([100, 50, 100]);
       triggerShake();
       return;
     }
-    playDup();
-    setCorrect(true);
-    setTimeout(() => {
-      setCorrect(false);
-      setHint(false);
-      setImgLoaded(false);
-      const u = quiz.remainingCountries.filter(
-        (c) => c.country !== quiz.currentCountry.country,
-      );
-      if (u.length === 0) {
-        setCompleted(true);
-        localStorage.removeItem("shapeQuiz");
-        return;
-      }
-      setQuiz({
-        score: quiz.score + 1,
-        remainingCountries: u,
-        currentCountry: u[0],
-        answer: "",
-      });
-    }, 600);
-  }, [quiz]);
+  }, [quiz, correct]);
   const handleSkip = () => {
     playAssistMe();
     setHint(false);
@@ -612,7 +648,7 @@ const CountryShapeQuiz = () => {
                   onClick={handleNext}
                   disabled={correct}
                 >
-                  Next ➜
+                  Check ➜
                 </button>
               </div>
 
