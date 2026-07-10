@@ -236,7 +236,41 @@ const FlagQuiz = () => {
     setShake(true);
     setTimeout(() => setShake(false), 500);
   };
+  // Auto-advance if the answer is correct
+  useEffect(() => {
+    if (!quiz.answer || !quiz.currentCountry || correct) return;
+    const tr = quiz.answer.trim().toLowerCase();
+    const ex = quiz.currentCountry.country.toLowerCase();
+    if (tr === ex) {
+      playDup();
+      setCorrect(true);
+      const timer = setTimeout(() => {
+        setCorrect(false);
+        setHint(false);
+        setImgLoaded(false);
+        setQuiz((prev) => {
+          const u = prev.remainingCountries.filter(
+            (c) => c.country !== prev.currentCountry.country
+          );
+          if (u.length === 0) {
+            setCompleted(true);
+            localStorage.removeItem("flagQuiz");
+            return prev;
+          }
+          return {
+            score: prev.score + 1,
+            remainingCountries: u,
+            currentCountry: u[0],
+            answer: "",
+          };
+        });
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [quiz.answer, quiz.currentCountry, correct]);
+
   const handleNext = useCallback(() => {
+    if (correct) return;
     const tr = quiz.answer.trim().toLowerCase(),
       ex = quiz.currentCountry.country.toLowerCase();
     if (tr !== ex) {
@@ -246,28 +280,7 @@ const FlagQuiz = () => {
       triggerShake();
       return;
     }
-    playDup();
-    setCorrect(true);
-    setTimeout(() => {
-      setCorrect(false);
-      setHint(false);
-      setImgLoaded(false);
-      const u = quiz.remainingCountries.filter(
-        (c) => c.country !== quiz.currentCountry.country,
-      );
-      if (u.length === 0) {
-        setCompleted(true);
-        localStorage.removeItem("flagQuiz");
-        return;
-      }
-      setQuiz({
-        score: quiz.score + 1,
-        remainingCountries: u,
-        currentCountry: u[0],
-        answer: "",
-      });
-    }, 600);
-  }, [quiz]);
+  }, [quiz, correct]);
   const handleSkip = () => {
     playAssistMe();
     setHint(false);
