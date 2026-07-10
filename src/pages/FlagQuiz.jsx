@@ -14,6 +14,55 @@ const shuffleArray = (a) => {
   return arr;
 };
 
+const countryAliases = {
+  "us": ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
+  "gb": ["uk", "united kingdom", "u.k.", "britain", "great britain", "gb"],
+  "ae": ["uae", "united arab emirates", "u.a.e."],
+  "cd": ["drc", "democratic republic of the congo", "d.r.c.", "congo drc", "congo-kinshasa"],
+  "cg": ["congo-brazzaville", "republic of the congo"],
+  "cf": ["car", "central african republic", "c.a.r."],
+  "nz": ["new zealand", "nz", "n.z."],
+  "kp": ["north korea", "dprk", "d.p.r.k."],
+  "kr": ["south korea", "rok", "r.o.k."],
+  "cz": ["czechia", "czech republic"],
+  "va": ["vatican", "vatican city"],
+  "kn": ["st kitts and nevis", "saint kitts", "st kitts", "saint kitts and nevis"],
+  "lc": ["st lucia", "saint lucia"],
+  "vc": ["st vincent and the grenadines", "saint vincent", "st vincent", "saint vincent and the grenadines"],
+  "ru": ["russia", "russian federation"],
+  "sy": ["syria", "syrian arab republic"],
+  "vn": ["vietnam", "viet nam"],
+  "la": ["laos", "lao people's democratic republic"],
+  "ir": ["iran", "islamic republic of iran"],
+  "tz": ["tanzania", "united republic of tanzania"],
+  "fm": ["micronesia", "federated states of micronesia"],
+  "ps": ["palestine", "state of palestine"],
+  "sz": ["eswatini", "swaziland"]
+};
+
+const isAnswerCorrect = (answerText, countryObj) => {
+  if (!answerText || !countryObj) return false;
+  const typed = answerText.trim().toLowerCase();
+  const code = countryObj.code.toLowerCase();
+  const name = countryObj.country.toLowerCase();
+  
+  if (typed === name) return true;
+  if (typed === code) return true;
+  
+  const aliases = countryAliases[code];
+  if (aliases && aliases.some(alias => alias.toLowerCase() === typed)) {
+    return true;
+  }
+  
+  const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
+  if (sanitize(typed) === sanitize(name)) return true;
+  if (aliases && aliases.some(alias => sanitize(alias) === sanitize(typed))) {
+    return true;
+  }
+  
+  return false;
+};
+
 const FlagQuiz = () => {
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
@@ -239,9 +288,7 @@ const FlagQuiz = () => {
   // Auto-advance if the answer is correct
   useEffect(() => {
     if (!quiz.answer || !quiz.currentCountry) return;
-    const tr = quiz.answer.trim().toLowerCase();
-    const ex = quiz.currentCountry.country.toLowerCase();
-    if (tr === ex) {
+    if (isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
       playDup();
       setCorrect(true);
       const timer = setTimeout(() => {
@@ -267,13 +314,11 @@ const FlagQuiz = () => {
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [quiz.answer, quiz.currentCountry.country]);
+  }, [quiz.answer, quiz.currentCountry]);
 
   const handleNext = useCallback(() => {
     if (correct) return;
-    const tr = quiz.answer.trim().toLowerCase(),
-      ex = quiz.currentCountry.country.toLowerCase();
-    if (tr !== ex) {
+    if (!isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
       playError();
       if (typeof navigator !== "undefined" && navigator.vibrate)
         navigator.vibrate([100, 50, 100]);
