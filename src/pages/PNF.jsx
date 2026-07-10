@@ -33,6 +33,16 @@ const PNF = () => {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
+    // Dynamic SEO update
+    document.title = "Page Not Found - 404 | FQz Games";
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "Oops! The page you are looking for does not exist on FQz Games. Return home to play our geography and brand quizzes."
+      );
+    }
+
     let rafId;
     const updateParallax = () => {
       const { x: tx, y: ty } = mouseRef.current;

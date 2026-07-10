@@ -31,6 +31,18 @@ const FlagQuiz = () => {
     };
   };
   const [quiz, setQuiz] = useState(getInitialQuiz);
+
+  useEffect(() => {
+    document.title = "Flag Quiz - Guess World Flags | FQz Games";
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "Test your knowledge of world flags in the FQz Flag Quiz! Guess national flags, track your speed, and beat your high scores."
+      );
+    }
+  }, []);
+
   const orb1Ref = useRef(null),
     orb2Ref = useRef(null),
     rafRef = useRef(null),
