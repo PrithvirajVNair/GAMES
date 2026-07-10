@@ -6,6 +6,7 @@ import PNF from "./pages/PNF";
 import CountryShapeQuiz from "./pages/CountryShapeQuiz";
 import { Analytics } from "@vercel/analytics/react";
 import Feedback from "./components/Feedback";
+import LogoQuiz from "./pages/LogoQuiz";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/flag-quiz" element={<FlagQuiz />} />
         <Route path="/country-shape-quiz" element={<CountryShapeQuiz />} />
+        <Route path="/logo-quiz" element={<LogoQuiz />} />
         <Route path="*" element={<PNF />} />
       </Routes>
       <Analytics />

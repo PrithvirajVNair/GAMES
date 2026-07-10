@@ -20,10 +20,10 @@ const Sidebar = ({ isOpen, onClose }) => {
       status: "playable",
     },
     {
-      id: "map-quiz",
-      title: "Coming Soon",
-      path: "/map-quiz",
-      status: "coming-soon",
+      id: "logo-quiz",
+      title: "Logo Quiz",
+      path: "/logo-quiz",
+      status: "playable",
     },
   ];
 
@@ -31,6 +31,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (id === "home") return <Home />;
     if (id === "flag-quiz") return <Flag />;
     if (id === "country-shape-quiz") return <MapPinned />;
+    if (id === "logo-quiz") return <Gamepad2 />;
     return <Ellipsis />;
   };
 

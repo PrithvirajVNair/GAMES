@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flag, MapPinned, Ellipsis } from "lucide-react";
+import { Flag, MapPinned, Gamepad2 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const Home = () => {
@@ -156,28 +156,28 @@ const Home = () => {
               </button>
             </div>
 
-            {/* Coming Soon Card */}
-            <div className="bg-white/[0.03] border border-white/6 p-9 flex flex-col gap-6 relative cursor-not-allowed overflow-hidden opacity-60 max-sm:p-7">
-              <div className="w-[54px] h-[54px] flex items-center justify-center bg-white/5 text-white/40 border border-white/8">
-                <Ellipsis size={24} />
+            {/* Logo Quiz Card */}
+            <div className="bg-white/[0.03] border border-white/6 p-9 flex flex-col gap-6 relative cursor-default overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-2 hover:bg-white/5 hover:border-fuchsia-500/30 hover:shadow-[0_20px_40px_rgba(192,132,252,0.15)] max-sm:p-7">
+              <div className="w-[54px] h-[54px] flex items-center justify-center bg-fuchsia-500/15 text-fuchsia-400 border border-fuchsia-500/25">
+                <Gamepad2 size={24} />
               </div>
               <div className="flex flex-col gap-2 flex-1">
-                <span className="text-[0.72rem] font-bold tracking-[0.5px] uppercase text-white/35">
-                  Coming Soon
+                <span className="text-[0.72rem] font-bold tracking-[0.5px] uppercase text-fuchsia-400">
+                  Brand Quiz
                 </span>
                 <h2 className="text-[1.4rem] font-extrabold m-0 text-white">
-                  New Game
+                  Logo Quiz
                 </h2>
                 <p className="text-[0.88rem] text-white/45 leading-[1.5] m-0">
-                  A new challenge is currently in development. Stay tuned for
-                  the next release.
+                  Identify brands by their iconic logos. Test your recognition
+                  of the world's most famous company marks.
                 </p>
               </div>
               <button
-                className="w-full py-[0.85rem] text-[0.9rem] font-bold cursor-not-allowed flex items-center justify-center gap-2 bg-white/[0.04] text-white/35 border border-white/8"
-                disabled
+                className="w-full py-[0.85rem] text-[0.9rem] font-bold border-none cursor-pointer flex items-center justify-center gap-2 bg-[linear-gradient(135deg,#a855f7,#7e22ce)] text-white shadow-[0_4px_18px_rgba(168,85,247,0.2)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(168,85,247,0.4)] hover:-translate-y-px"
+                onClick={() => navigate("/logo-quiz")}
               >
-                Locked
+                Play Logo Quiz ➔
               </button>
             </div>
           </div>
