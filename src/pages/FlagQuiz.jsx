@@ -28,7 +28,7 @@ const isAnswerCorrect = (answerText, countryObj) => {
 
   if (typed === name) return true;
 
-  const aliases = countryAliases[code] || (code === "gb" ? countryAliases["uk"] : undefined);
+  const aliases = countryAliases[code];
   if (aliases && aliases.some((alias) => alias.toLowerCase() === typed)) {
     return true;
   }
@@ -44,14 +44,13 @@ const isAnswerCorrect = (answerText, countryObj) => {
 
 const FlagQuiz = () => {
   const getInitialQuiz = () => {
-    localStorage.removeItem("flagQuiz");
-    const s = shuffleArray(countries.data);
-    const ukIdx = s.findIndex((c) => c.country === "United Kingdom");
-    if (ukIdx !== -1) {
-      const [uk] = s.splice(ukIdx, 1);
-      s.unshift(uk);
+    const saved = localStorage.getItem("flagQuiz");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
     }
-    console.log("getInitialQuiz - First country is:", s[0].country, s[0]);
+    const s = shuffleArray(countries.data);
     return {
       score: 0,
       remainingCountries: s,
@@ -352,12 +351,6 @@ const FlagQuiz = () => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
     const s = shuffleArray(countries.data);
-    const ukIdx = s.findIndex((c) => c.country === "United Kingdom");
-    if (ukIdx !== -1) {
-      const [uk] = s.splice(ukIdx, 1);
-      s.unshift(uk);
-    }
-    console.log("handleStartNew - First country is:", s[0].country, s[0]);
     setQuiz({
       score: 0,
       remainingCountries: s,
