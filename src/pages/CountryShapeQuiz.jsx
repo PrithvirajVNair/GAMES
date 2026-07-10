@@ -26,7 +26,6 @@ const isAnswerCorrect = (answerText, countryObj) => {
   const name = countryObj.country.toLowerCase();
 
   if (typed === name) return true;
-  if (typed === code) return true;
 
   const aliases = countryAliases[code];
   if (aliases && aliases.some((alias) => alias.toLowerCase() === typed)) {
