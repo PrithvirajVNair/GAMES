@@ -16,7 +16,8 @@ const shuffleArray = (a) => {
 
 const countryAliases = {
   us: ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
-  tl: ["east timor", "timor leste", "timor lesta"]
+  tl: ["east timor", "timor leste", "timor lesta"],
+  uk: ["great britain", "uk"],
 };
 
 const isAnswerCorrect = (answerText, countryObj) => {
