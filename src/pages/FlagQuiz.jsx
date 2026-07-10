@@ -385,7 +385,7 @@ const FlagQuiz = () => {
                 Flag Quiz
               </h1>
               <p className="text-[0.9rem] text-white/50 leading-relaxed max-w-[380px] mb-2">
-                Identify all 196 flags of the world. Test your recognition
+                Identify all {TOTAL} flags of the world. Test your recognition
                 speed, memory, and geography skills!
               </p>
               <div className="flex flex-col gap-3 w-full text-left mb-5">
