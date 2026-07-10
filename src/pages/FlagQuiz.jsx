@@ -44,13 +44,12 @@ const isAnswerCorrect = (answerText, countryObj) => {
 
 const FlagQuiz = () => {
   const getInitialQuiz = () => {
-    const saved = localStorage.getItem("flagQuiz");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
     const s = shuffleArray(countries.data);
+    const ukIdx = s.findIndex(c => c.code.toLowerCase() === 'gb');
+    if (ukIdx !== -1) {
+      const [uk] = s.splice(ukIdx, 1);
+      s.unshift(uk);
+    }
     return {
       score: 0,
       remainingCountries: s,
