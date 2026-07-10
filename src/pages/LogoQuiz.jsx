@@ -26,6 +26,18 @@ const LogoQuiz = () => {
     return { score: 0, remainingLogos: s, currentLogo: s[0], answer: "" };
   };
   const [quiz, setQuiz] = useState(getInitial);
+
+  useEffect(() => {
+    document.title = "Logo Quiz - Guess the Brand | FQz Games";
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "How well do you know famous global brands? Test your logo recognition skills with the interactive FQz Logo Quiz!"
+      );
+    }
+  }, []);
+
   const orb1Ref = useRef(null),
     orb2Ref = useRef(null),
     rafRef = useRef(null);

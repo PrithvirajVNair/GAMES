@@ -31,6 +31,18 @@ const CountryShapeQuiz = () => {
     };
   };
   const [quiz, setQuiz] = useState(getInitialQuiz);
+
+  useEffect(() => {
+    document.title = "Country Shape Quiz - Guess Border Outlines | FQz Games";
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "Test your geography skills by guessing country shapes! Can you identify a country purely by its border silhouette in FQz Games?"
+      );
+    }
+  }, []);
+
   const orb1Ref = useRef(null),
     orb2Ref = useRef(null),
     rafRef = useRef(null),

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flag, MapPinned, Gamepad2 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
@@ -8,6 +8,17 @@ import logos from "../utils/logos";
 const Home = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = "FQz Games - Geography & Brand Quiz Games";
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "Play interactive trivia games! Identify flags, guess countries from shape outlines, and name brands from logos."
+      );
+    }
+  }, []);
 
   return (
     <>
