@@ -37,7 +37,8 @@ const countryAliases = {
   "tz": ["tanzania", "united republic of tanzania"],
   "fm": ["micronesia", "federated states of micronesia"],
   "ps": ["palestine", "state of palestine"],
-  "sz": ["eswatini", "swaziland"]
+  "sz": ["eswatini", "swaziland"],
+  "tl": ["east timor", "timor leste"]
 };
 
 const isAnswerCorrect = (answerText, countryObj) => {
