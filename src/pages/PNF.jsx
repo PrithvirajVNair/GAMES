@@ -119,7 +119,7 @@ const PNF = () => {
         className="relative z-10"
         style={{ transformStyle: "preserve-3d", willChange: "transform" }}
       >
-        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/8 rounded-[24px] p-12 px-8 backdrop-blur-[25px] shadow-[0_30px_60px_rgba(0,0,0,0.6),0_0_100px_rgba(99,102,241,0.15)] flex flex-col items-center text-center gap-7">
+        <div className="w-full max-w-[480px] bg-white/[0.03] border border-white/8 p-12 px-8 backdrop-blur-[25px] shadow-[0_30px_60px_rgba(0,0,0,0.6),0_0_100px_rgba(99,102,241,0.15)] flex flex-col items-center text-center gap-7">
           {/* Compass */}
           <div className="relative w-20 h-20 flex items-center justify-center bg-white/[0.03] border-[1.5px] border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.3)] animate-float-sm">
             <Compass
