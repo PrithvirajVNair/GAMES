@@ -28,7 +28,7 @@ const isAnswerCorrect = (answerText, countryObj) => {
 
   if (typed === name) return true;
 
-  const aliases = countryAliases[code];
+  const aliases = countryAliases[code] || (code === "gb" ? countryAliases["uk"] : undefined);
   if (aliases && aliases.some((alias) => alias.toLowerCase() === typed)) {
     return true;
   }
@@ -44,13 +44,13 @@ const isAnswerCorrect = (answerText, countryObj) => {
 
 const FlagQuiz = () => {
   const getInitialQuiz = () => {
-    const saved = localStorage.getItem("flagQuiz");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
+    localStorage.removeItem("flagQuiz");
     const s = shuffleArray(countries.data);
+    const ukIdx = s.findIndex((c) => c.country === "United Kingdom");
+    if (ukIdx !== -1) {
+      const [uk] = s.splice(ukIdx, 1);
+      s.unshift(uk);
+    }
     return {
       score: 0,
       remainingCountries: s,
