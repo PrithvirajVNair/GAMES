@@ -462,7 +462,7 @@ const CountryShapeQuiz = () => {
 
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <div className="relative z-[1] w-full max-w-[480px] md:max-w-[520px] bg-white/[0.04] border border-white/10 p-8 md:p-10 backdrop-blur-[20px] shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.05)] max-sm:p-5 max-sm:rounded-[20px]">
+        <div className="relative z-[1] w-full max-w-[480px] md:max-w-[520px] bg-white/[0.04] border border-white/10 p-8 md:p-10 backdrop-blur-[20px] shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.05)] max-sm:p-5">
           {!started ? (
             <div className="text-center flex flex-col items-center gap-5">
               <div
