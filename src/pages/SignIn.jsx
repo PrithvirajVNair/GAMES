@@ -29,7 +29,7 @@ const SignIn = () => {
       setLoading(true);
       localStorage.setItem("supabase.rememberMe", rememberMe ? "true" : "false");
       await signIn(email, password);
-      toast.success("Welcome back!", { theme: "dark" });
+      toast("Welcome back!", { theme: "dark" });
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);

@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       await signOut();
-      toast.success("Logged out successfully", { theme: "dark" });
+      toast("Logged out successfully", { theme: "dark" });
       onClose();
       navigate("/");
     } catch (error) {

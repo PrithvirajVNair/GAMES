@@ -68,10 +68,10 @@ const AuthModal = ({ isOpen, onClose }) => {
         setLoading(true);
         const data = await signUp(username, email, password);
         if (data?.session) {
-          toast.success("Account created successfully!", { theme: "dark" });
+          toast("Account created successfully!", { theme: "dark" });
           onClose();
         } else {
-          toast.success("Account created successfully. Please verify your email before signing in.", {
+          toast("Account created successfully. Please verify your email before signing in.", {
             theme: "dark",
             autoClose: 8000,
           });
@@ -92,7 +92,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       try {
         setLoading(true);
         await signIn(email, password);
-        toast.success("Welcome back!", { theme: "dark" });
+        toast("Welcome back!", { theme: "dark" });
         onClose();
       } catch (err) {
         console.error(err);

@@ -43,7 +43,7 @@ const LogoQuiz = () => {
       ]);
 
       if (error) throw error;
-      toast.success("Score submitted to global leaderboard!", { theme: "dark" });
+      toast("Score submitted to global leaderboard!", { theme: "dark" });
       setScoreSubmitted(true);
     } catch (err) {
       console.error(err);
