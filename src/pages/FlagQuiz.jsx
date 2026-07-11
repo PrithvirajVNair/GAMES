@@ -113,7 +113,7 @@ const FlagQuiz = () => {
         return JSON.parse(saved);
       } catch {}
     }
-    const s = shuffleArray(getCountriesForContinent("All")).slice(0, 1);
+    const s = shuffleArray(getCountriesForContinent("All"));
     return {
       score: 0,
       remainingCountries: s,
@@ -387,7 +387,7 @@ const FlagQuiz = () => {
   const handleReset = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent));
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -412,7 +412,7 @@ const FlagQuiz = () => {
   const handleStartNew = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent));
     setQuiz({
       score: 0,
       remainingCountries: s,
