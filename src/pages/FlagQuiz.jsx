@@ -95,7 +95,7 @@ const FlagQuiz = () => {
       ]);
 
       if (error) throw error;
-      toast.success("Score submitted to global leaderboard!", { theme: "dark" });
+      toast("Score submitted to global leaderboard!", { theme: "dark" });
       setScoreSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -458,7 +458,7 @@ const FlagQuiz = () => {
               },
             ]);
             if (error) throw error;
-            toast.success("Score automatically saved to global leaderboard!", { theme: "dark" });
+            toast("Score automatically saved to global leaderboard!", { theme: "dark" });
             setScoreSubmitted(true);
           } catch (err) {
             console.error("Auto score submit failed:", err);

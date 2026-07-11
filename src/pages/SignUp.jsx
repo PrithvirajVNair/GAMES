@@ -59,10 +59,10 @@ const SignUp = () => {
       setLoading(true);
       const data = await signUp(username, email, password);
       if (data?.session) {
-        toast.success("Account created successfully!", { theme: "dark" });
+        toast("Account created successfully!", { theme: "dark" });
         navigate(from, { replace: true });
       } else {
-        toast.success("Account created successfully. Please verify your email before signing in.", {
+        toast("Account created successfully. Please verify your email before signing in.", {
           theme: "dark",
           autoClose: 8000,
         });
