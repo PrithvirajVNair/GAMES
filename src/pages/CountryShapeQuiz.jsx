@@ -40,12 +40,13 @@ const shuffleArray = (a) => {
 const countryAliases = {
   us: ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
   tl: ["east timor", "timor leste", "timor lesta"],
-  uk: ["great britain", "uk"],
+  gb: ["great britain", "uk", "u.k.", "britain"],
   gw: ["guinea bissau"],
   cd: ["dem rep of congo", "dr congo"],
   kn: ["st kitts and nevis"],
   lc: ["st lucia"],
   vc: ["st vincent and the grenadines"],
+  ae: ["uae", "u.a.e."],
 };
 
 const isAnswerCorrect = (answerText, countryObj) => {

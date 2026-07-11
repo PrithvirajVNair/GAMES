@@ -40,12 +40,13 @@ const shuffleArray = (a) => {
 const countryAliases = {
   us: ["usa", "united states of america", "u.s.a.", "u.s.", "us"],
   tl: ["east timor", "timor leste", "timor lesta"],
-  uk: ["great britain", "uk"],
+  gb: ["great britain", "uk", "u.k.", "britain"],
   gw: ["guinea bissau"],
   cd: ["dem rep of congo", "dr congo"],
   kn: ["st kitts and nevis"],
   lc: ["st lucia"],
   vc: ["st vincent and the grenadines"],
+  ae: ["uae", "u.a.e."],
 };
 
 const isAnswerCorrect = (answerText, countryObj) => {
@@ -84,7 +85,8 @@ const FlagQuiz = () => {
   }, [selectedContinent]);
 
   const handleSubmitScore = async () => {
-    if (selectedContinent !== "All" || quiz.score !== countries.data.length) return;
+    if (selectedContinent !== "All" || quiz.score !== countries.data.length)
+      return;
     if (!user) {
       setAuthModalOpen(true);
       return;
@@ -110,7 +112,6 @@ const FlagQuiz = () => {
       setSubmittingScore(false);
     }
   };
-
 
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
@@ -321,7 +322,6 @@ const FlagQuiz = () => {
   });
   const hasSavedProgress = quiz.score > 0 && quiz.remainingCountries.length > 0;
 
-
   const triggerShake = () => {
     setShake(true);
     setTimeout(() => setShake(false), 500);
@@ -452,7 +452,12 @@ const FlagQuiz = () => {
 
   // Auto-submit score to Supabase when quiz is completed
   useEffect(() => {
-    if (completed && !scoreSubmitted && selectedContinent === "All" && quiz.score === countries.data.length) {
+    if (
+      completed &&
+      !scoreSubmitted &&
+      selectedContinent === "All" &&
+      quiz.score === countries.data.length
+    ) {
       if (user) {
         const autoSubmit = async () => {
           try {
@@ -465,21 +470,28 @@ const FlagQuiz = () => {
               },
             ]);
             if (error) throw error;
-            toast("Score automatically saved to global leaderboard!", { theme: "dark" });
+            toast("Score automatically saved to global leaderboard!", {
+              theme: "dark",
+            });
             setScoreSubmitted(true);
           } catch (err) {
             console.error("Auto score submit failed:", err);
-            toast.error("Failed to auto-save score: " + err.message, { theme: "dark" });
+            toast.error("Failed to auto-save score: " + err.message, {
+              theme: "dark",
+            });
           } finally {
             setSubmittingScore(false);
           }
         };
         autoSubmit();
       } else {
-        toast.info("Please sign in to save your score to the global leaderboard!", {
-          theme: "dark",
-          autoClose: 10000,
-        });
+        toast.info(
+          "Please sign in to save your score to the global leaderboard!",
+          {
+            theme: "dark",
+            autoClose: 10000,
+          },
+        );
       }
     }
   }, [completed, user, scoreSubmitted, elapsed, selectedContinent, quiz.score]);
@@ -655,13 +667,20 @@ const FlagQuiz = () => {
                 <button
                   className="w-full py-[0.9rem] mb-3 bg-[linear-gradient(135deg,#10b981,#059669)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleSubmitScore}
-                  disabled={submittingScore || scoreSubmitted || quiz.score === 0}
+                  disabled={
+                    submittingScore || scoreSubmitted || quiz.score === 0
+                  }
                 >
-                  {submittingScore ? "Submitting Score..." : scoreSubmitted ? "Score Saved! ✓" : "🏆 Save Score"}
+                  {submittingScore
+                    ? "Submitting Score..."
+                    : scoreSubmitted
+                      ? "Score Saved! ✓"
+                      : "🏆 Save Score"}
                 </button>
               ) : (
                 <div className="bg-white/5 border border-white/8 rounded-xl p-3 mb-3 text-[0.8rem] text-white/55 text-center leading-relaxed">
-                  💡 Leaderboard submissions are only available for the full world quiz (All continents).
+                  💡 Leaderboard submissions are only available for the full
+                  world quiz (All continents).
                 </div>
               )}
               <button
@@ -823,7 +842,10 @@ const FlagQuiz = () => {
           )}
         </div>
       </div>
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </>
   );
 };
