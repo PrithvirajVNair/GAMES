@@ -1001,13 +1001,13 @@ const logos = {
       category: "Finance",
       difficulty: "Easy",
     },
-    {
-      id: 144,
-      name: "Google Pay",
-      domain: "pay.google.com",
-      category: "Finance",
-      difficulty: "Easy",
-    },
+    // {
+    //   id: 144,
+    //   name: "Google Pay",
+    //   domain: "pay.google.com",
+    //   category: "Finance",
+    //   difficulty: "Easy",
+    // },
     // {
     //   id: 145,
     //   name: "Paytm",

@@ -3,8 +3,31 @@ import countries from "../utils/countries";
 import Sidebar from "../components/Sidebar";
 import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
 import { Flag } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { toast } from "react-toastify";
+import AuthModal from "../components/AuthModal";
 
-const TOTAL = countries.data.length;
+// Continent name mapping
+const continentNames = {
+  AF: "Africa",
+  AN: "Antarctica",
+  AS: "Asia",
+  EU: "Europe",
+  NA: "North America",
+  OC: "Oceania",
+  SA: "South America",
+};
+
+const ALL_CONTINENTS = [
+  "All",
+  ...Object.keys(continentNames).filter((k) => k !== "AN"),
+];
+
+const getCountriesForContinent = (continent) =>
+  continent === "All"
+    ? countries.data
+    : countries.data.filter((c) => c.continent === continentNames[continent]);
 const shuffleArray = (a) => {
   const arr = [...a];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -48,6 +71,41 @@ const isAnswerCorrect = (answerText, countryObj) => {
 };
 
 const FlagQuiz = () => {
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [submittingScore, setSubmittingScore] = useState(false);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+  const [selectedContinent, setSelectedContinent] = useState("All");
+
+  const handleSubmitScore = async () => {
+    if (selectedContinent !== "All") return;
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      setSubmittingScore(true);
+      const { error } = await supabase.from("scores").insert([
+        {
+          user_id: user.id,
+          time_ms: elapsed * 1000,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) throw error;
+      toast.success("Score submitted to global leaderboard!", { theme: "dark" });
+      setScoreSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit score: " + err.message, { theme: "dark" });
+    } finally {
+      setSubmittingScore(false);
+    }
+  };
+
+
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
     if (saved) {
@@ -55,7 +113,7 @@ const FlagQuiz = () => {
         return JSON.parse(saved);
       } catch {}
     }
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent("All")).slice(0, 1);
     return {
       score: 0,
       remainingCountries: s,
@@ -254,16 +312,8 @@ const FlagQuiz = () => {
     if (!s) return 0;
     return Math.floor((Date.now() - Number(s)) / 1000);
   });
-  const hasSavedProgress = React.useMemo(() => {
-    const s = localStorage.getItem("flagQuiz");
-    if (!s) return false;
-    try {
-      const p = JSON.parse(s);
-      return p.remainingCountries && p.remainingCountries.length < TOTAL;
-    } catch {
-      return false;
-    }
-  }, []);
+  const hasSavedProgress = quiz.score > 0 && quiz.remainingCountries.length > 0;
+
 
   const triggerShake = () => {
     setShake(true);
@@ -286,7 +336,13 @@ const FlagQuiz = () => {
           if (u.length === 0) {
             setCompleted(true);
             localStorage.removeItem("flagQuiz");
-            return prev;
+            return {
+              ...prev,
+              score: prev.score + 1,
+              remainingCountries: [],
+              currentCountry: null,
+              answer: "",
+            };
           }
           return {
             score: prev.score + 1,
@@ -331,7 +387,7 @@ const FlagQuiz = () => {
   const handleReset = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -344,7 +400,8 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  }, []);
+    setScoreSubmitted(false);
+  }, [selectedContinent]);
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("quizStartTime"))
       localStorage.setItem("quizStartTime", Date.now().toString());
@@ -355,7 +412,7 @@ const FlagQuiz = () => {
   const handleStartNew = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -368,7 +425,8 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  }, []);
+    setScoreSubmitted(false);
+  }, [selectedContinent]);
 
   useEffect(() => {
     localStorage.setItem("flagQuiz", JSON.stringify(quiz));
@@ -385,13 +443,51 @@ const FlagQuiz = () => {
     if (!correct) inputRef.current?.focus();
   }, [correct]);
 
+  // Auto-submit score to Supabase when quiz is completed
+  useEffect(() => {
+    if (completed && !scoreSubmitted && selectedContinent === "All") {
+      if (user) {
+        const autoSubmit = async () => {
+          try {
+            setSubmittingScore(true);
+            const { error } = await supabase.from("scores").insert([
+              {
+                user_id: user.id,
+                time_ms: elapsed * 1000,
+                created_at: new Date().toISOString(),
+              },
+            ]);
+            if (error) throw error;
+            toast.success("Score automatically saved to global leaderboard!", { theme: "dark" });
+            setScoreSubmitted(true);
+          } catch (err) {
+            console.error("Auto score submit failed:", err);
+            toast.error("Failed to auto-save score: " + err.message, { theme: "dark" });
+          } finally {
+            setSubmittingScore(false);
+          }
+        };
+        autoSubmit();
+      } else {
+        toast.info("Please sign in to save your score to the global leaderboard!", {
+          theme: "dark",
+          autoClose: 10000,
+        });
+      }
+    }
+  }, [completed, user, scoreSubmitted, elapsed, selectedContinent]);
+
   const formatTime = (s) =>
     `${Math.floor(s / 60)
       .toString()
       .padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
-  const progress = ((TOTAL - quiz.remainingCountries.length) / TOTAL) * 100;
-  const firstLetter = quiz.currentCountry.country[0];
-  const hintText = `${firstLetter}${"_ ".repeat(quiz.currentCountry.country.length - 1).trim()} (${quiz.currentCountry.country.length} letters)`;
+  const TOTAL = quiz.remainingCountries.length + quiz.score;
+  const progress =
+    TOTAL > 0 ? ((TOTAL - quiz.remainingCountries.length) / TOTAL) * 100 : 0;
+  const firstLetter = quiz.currentCountry ? quiz.currentCountry.country[0] : "";
+  const hintText = quiz.currentCountry
+    ? `${firstLetter}${"_ ".repeat(quiz.currentCountry.country.length - 1).trim()} (${quiz.currentCountry.country.length} letters)`
+    : "";
 
   const btnBase =
     "py-3 px-2 rounded-xl text-[0.88rem] font-bold cursor-pointer border-none transition-all duration-150 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed tracking-wide";
@@ -439,10 +535,35 @@ const FlagQuiz = () => {
                 Flag Quiz
               </h1>
               <p className="text-[0.9rem] text-white/50 leading-relaxed max-w-[380px] mb-2">
-                Identify all {TOTAL} flags of the world. Test your recognition
-                speed, memory, and geography skills!
+                Test your flag recognition speed, memory, and geography skills!
               </p>
-              <div className="flex flex-col gap-3 w-full text-left mb-5">
+
+              {/* Continent selector */}
+              <div className="w-full">
+                <p className="text-[0.72rem] font-bold text-white/40 uppercase tracking-widest mb-2 text-left">
+                  Filter by Continent
+                </p>
+                <div className="grid grid-cols-4 gap-1.5 max-sm:grid-cols-3">
+                  {ALL_CONTINENTS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setSelectedContinent(c)}
+                      className={`py-[0.45rem] px-2 text-[0.72rem] font-bold border cursor-pointer transition-all duration-150 active:scale-95 ${
+                        selectedContinent === c
+                          ? "bg-indigo-500/30 border-indigo-500/60 text-violet-300 shadow-[0_0_12px_rgba(99,102,241,0.25)]"
+                          : "bg-white/[0.03] border-white/10 text-white/45 hover:bg-white/8 hover:border-white/20 hover:text-white/80"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[0.72rem] text-white/30 mt-1.5 text-right">
+                  {getCountriesForContinent(selectedContinent).length} countries
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 w-full text-left mb-2">
                 {[
                   {
                     icon: "⏱️",
@@ -523,6 +644,19 @@ const FlagQuiz = () => {
               <div className="text-white/40 text-[0.9rem] mb-6 tracking-widest">
                 ⏱ {formatTime(elapsed)}
               </div>
+              {selectedContinent === "All" ? (
+                <button
+                  className="w-full py-[0.9rem] mb-3 bg-[linear-gradient(135deg,#10b981,#059669)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSubmitScore}
+                  disabled={submittingScore || scoreSubmitted || quiz.score === 0}
+                >
+                  {submittingScore ? "Submitting Score..." : scoreSubmitted ? "Score Saved! ✓" : "🏆 Save Score"}
+                </button>
+              ) : (
+                <div className="bg-white/5 border border-white/8 rounded-xl p-3 mb-3 text-[0.8rem] text-white/55 text-center leading-relaxed">
+                  💡 Leaderboard submissions are only available for the full world quiz (All continents).
+                </div>
+              )}
               <button
                 className="w-full py-[0.9rem] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(99,102,241,0.4)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] active:scale-[0.97]"
                 onClick={handleReset}
@@ -655,7 +789,7 @@ const FlagQuiz = () => {
               </div>
 
               {/* Secondary */}
-              <div className="grid grid-cols-2 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
+              <div className="grid grid-cols-3 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
                 <button
                   className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:border-white/18 hover:text-white active:scale-[0.97]"
                   onClick={handleReset}
@@ -670,11 +804,19 @@ const FlagQuiz = () => {
                 >
                   🏳️ Give Up
                 </button>
+                <button
+                  className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:border-white/18 hover:text-white active:scale-[0.97]"
+                  onClick={() => setStarted(false)}
+                  disabled={correct}
+                >
+                  🏠 Home
+                </button>
               </div>
             </>
           )}
         </div>
       </div>
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 };
