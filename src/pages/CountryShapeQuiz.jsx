@@ -46,7 +46,7 @@ const countryAliases = {
   kn: ["st kitts and nevis"],
   lc: ["st lucia"],
   vc: ["st vincent and the grenadines"],
-  ae: ["uae", "u.a.e.", "united arab emirates"],
+  ae: ["uae", "u.a.e."],
 };
 
 const isAnswerCorrect = (answerText, countryObj) => {
