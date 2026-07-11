@@ -65,7 +65,7 @@ const Home = () => {
           ))}
         </div>
 
-        <div className="flex flex-col justify-center items-center gap-12 md:gap-20 w-full max-w-7xl mx-auto px-2 z-[5]">
+        <div className="flex flex-col justify-center items-center gap-8 md:gap-10 w-full max-w-7xl mx-auto px-2 z-[5]">
           {/* Hero */}
           <div className="text-center px-4 flex flex-col items-center w-full">
             <div className="relative w-full max-w-[1200px] h-[clamp(55px,15vw,150px)] mx-auto flex items-center justify-center select-none">
@@ -193,6 +193,16 @@ const Home = () => {
                 Play Logo Quiz ➔
               </button>
             </div>
+          </div>
+
+          {/* Global Leaderboard Call-to-Action */}
+          <div className="w-full max-w-[1100px] flex justify-center">
+            <button
+              onClick={() => navigate("/leaderboard")}
+              className="px-8 py-3.5 bg-white/[0.03] border border-white/10 hover:bg-white/8 hover:border-indigo-500/30 hover:shadow-[0_10px_25px_rgba(99,102,241,0.15)] text-white font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-2 text-[0.9rem] hover:-translate-y-px"
+            >
+              🏆 View Global Leaderboards
+            </button>
           </div>
         </div>
       </div>

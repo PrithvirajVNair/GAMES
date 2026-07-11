@@ -3,6 +3,10 @@ import countries from "../utils/countries";
 import Sidebar from "../components/Sidebar";
 import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
 import { Flag } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { toast } from "react-toastify";
+import AuthModal from "../components/AuthModal";
 
 // Continent name mapping
 const continentNames = {
@@ -67,7 +71,40 @@ const isAnswerCorrect = (answerText, countryObj) => {
 };
 
 const FlagQuiz = () => {
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [submittingScore, setSubmittingScore] = useState(false);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [selectedContinent, setSelectedContinent] = useState("All");
+
+  const handleSubmitScore = async () => {
+    if (selectedContinent !== "All") return;
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      setSubmittingScore(true);
+      const { error } = await supabase.from("scores").insert([
+        {
+          user_id: user.id,
+          time_ms: elapsed * 1000,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) throw error;
+      toast.success("Score submitted to global leaderboard!", { theme: "dark" });
+      setScoreSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit score: " + err.message, { theme: "dark" });
+    } finally {
+      setSubmittingScore(false);
+    }
+  };
+
 
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("flagQuiz");
@@ -76,7 +113,7 @@ const FlagQuiz = () => {
         return JSON.parse(saved);
       } catch {}
     }
-    const s = shuffleArray(getCountriesForContinent("All"));
+    const s = shuffleArray(getCountriesForContinent("All")).slice(0, 1);
     return {
       score: 0,
       remainingCountries: s,
@@ -299,7 +336,13 @@ const FlagQuiz = () => {
           if (u.length === 0) {
             setCompleted(true);
             localStorage.removeItem("flagQuiz");
-            return prev;
+            return {
+              ...prev,
+              score: prev.score + 1,
+              remainingCountries: [],
+              currentCountry: null,
+              answer: "",
+            };
           }
           return {
             score: prev.score + 1,
@@ -344,7 +387,7 @@ const FlagQuiz = () => {
   const handleReset = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(getCountriesForContinent(selectedContinent));
+    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -357,6 +400,7 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
+    setScoreSubmitted(false);
   }, [selectedContinent]);
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("quizStartTime"))
@@ -368,7 +412,7 @@ const FlagQuiz = () => {
   const handleStartNew = useCallback(() => {
     localStorage.removeItem("flagQuiz");
     localStorage.setItem("quizStartTime", Date.now().toString());
-    const s = shuffleArray(getCountriesForContinent(selectedContinent));
+    const s = shuffleArray(getCountriesForContinent(selectedContinent)).slice(0, 1);
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -381,6 +425,7 @@ const FlagQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
+    setScoreSubmitted(false);
   }, [selectedContinent]);
 
   useEffect(() => {
@@ -398,6 +443,40 @@ const FlagQuiz = () => {
     if (!correct) inputRef.current?.focus();
   }, [correct]);
 
+  // Auto-submit score to Supabase when quiz is completed
+  useEffect(() => {
+    if (completed && !scoreSubmitted && selectedContinent === "All") {
+      if (user) {
+        const autoSubmit = async () => {
+          try {
+            setSubmittingScore(true);
+            const { error } = await supabase.from("scores").insert([
+              {
+                user_id: user.id,
+                time_ms: elapsed * 1000,
+                created_at: new Date().toISOString(),
+              },
+            ]);
+            if (error) throw error;
+            toast.success("Score automatically saved to global leaderboard!", { theme: "dark" });
+            setScoreSubmitted(true);
+          } catch (err) {
+            console.error("Auto score submit failed:", err);
+            toast.error("Failed to auto-save score: " + err.message, { theme: "dark" });
+          } finally {
+            setSubmittingScore(false);
+          }
+        };
+        autoSubmit();
+      } else {
+        toast.info("Please sign in to save your score to the global leaderboard!", {
+          theme: "dark",
+          autoClose: 10000,
+        });
+      }
+    }
+  }, [completed, user, scoreSubmitted, elapsed, selectedContinent]);
+
   const formatTime = (s) =>
     `${Math.floor(s / 60)
       .toString()
@@ -405,8 +484,10 @@ const FlagQuiz = () => {
   const TOTAL = quiz.remainingCountries.length + quiz.score;
   const progress =
     TOTAL > 0 ? ((TOTAL - quiz.remainingCountries.length) / TOTAL) * 100 : 0;
-  const firstLetter = quiz.currentCountry.country[0];
-  const hintText = `${firstLetter}${"_ ".repeat(quiz.currentCountry.country.length - 1).trim()} (${quiz.currentCountry.country.length} letters)`;
+  const firstLetter = quiz.currentCountry ? quiz.currentCountry.country[0] : "";
+  const hintText = quiz.currentCountry
+    ? `${firstLetter}${"_ ".repeat(quiz.currentCountry.country.length - 1).trim()} (${quiz.currentCountry.country.length} letters)`
+    : "";
 
   const btnBase =
     "py-3 px-2 rounded-xl text-[0.88rem] font-bold cursor-pointer border-none transition-all duration-150 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed tracking-wide";
@@ -563,6 +644,19 @@ const FlagQuiz = () => {
               <div className="text-white/40 text-[0.9rem] mb-6 tracking-widest">
                 ⏱ {formatTime(elapsed)}
               </div>
+              {selectedContinent === "All" ? (
+                <button
+                  className="w-full py-[0.9rem] mb-3 bg-[linear-gradient(135deg,#10b981,#059669)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSubmitScore}
+                  disabled={submittingScore || scoreSubmitted || quiz.score === 0}
+                >
+                  {submittingScore ? "Submitting Score..." : scoreSubmitted ? "Score Saved! ✓" : "🏆 Save Score"}
+                </button>
+              ) : (
+                <div className="bg-white/5 border border-white/8 rounded-xl p-3 mb-3 text-[0.8rem] text-white/55 text-center leading-relaxed">
+                  💡 Leaderboard submissions are only available for the full world quiz (All continents).
+                </div>
+              )}
               <button
                 className="w-full py-[0.9rem] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(99,102,241,0.4)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] active:scale-[0.97]"
                 onClick={handleReset}
@@ -722,6 +816,7 @@ const FlagQuiz = () => {
           )}
         </div>
       </div>
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 };

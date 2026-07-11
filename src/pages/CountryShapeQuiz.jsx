@@ -3,6 +3,10 @@ import countries from "../utils/countries";
 import { Globe } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { toast } from "react-toastify";
+import AuthModal from "../components/AuthModal";
 
 // Continent name mapping
 const continentNames = {
@@ -67,7 +71,41 @@ const isAnswerCorrect = (answerText, countryObj) => {
 };
 
 const CountryShapeQuiz = () => {
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [submittingScore, setSubmittingScore] = useState(false);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [selectedContinent, setSelectedContinent] = useState("All");
+
+  const handleSubmitScore = async () => {
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      setSubmittingScore(true);
+      const { error } = await supabase.from("leaderboard_scores").insert([
+        {
+          user_id: user.id,
+          score: quiz.score,
+          elapsed_time: elapsed,
+          quiz_type: "Country Shape Quiz",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) throw error;
+      toast.success("Score submitted to global leaderboard!", { theme: "dark" });
+      setScoreSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit score: " + err.message, { theme: "dark" });
+    } finally {
+      setSubmittingScore(false);
+    }
+  };
+
 
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("shapeQuiz");
@@ -368,6 +406,7 @@ const CountryShapeQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
+    setScoreSubmitted(false);
   }, [selectedContinent]);
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("shapeQuizStartTime"))
@@ -392,6 +431,7 @@ const CountryShapeQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
+    setScoreSubmitted(false);
   }, [selectedContinent]);
 
   useEffect(() => {
@@ -571,6 +611,13 @@ const CountryShapeQuiz = () => {
                 ⏱ {formatTime(elapsed)}
               </div>
               <button
+                className="w-full py-[0.9rem] mb-3 bg-[linear-gradient(135deg,#10b981,#059669)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleSubmitScore}
+                disabled={submittingScore || scoreSubmitted || quiz.score === 0}
+              >
+                {submittingScore ? "Submitting Score..." : scoreSubmitted ? "Score Submitted! ✓" : "🏆 Submit to Leaderboard"}
+              </button>
+              <button
                 className="w-full py-[0.9rem] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(99,102,241,0.4)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] active:scale-[0.97]"
                 onClick={handleReset}
               >
@@ -736,6 +783,7 @@ const CountryShapeQuiz = () => {
           </a>
         </footer>
       </div>
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 };
