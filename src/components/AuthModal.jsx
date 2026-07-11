@@ -91,6 +91,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     } else {
       try {
         setLoading(true);
+        localStorage.setItem("supabase.rememberMe", rememberMe ? "true" : "false");
         await signIn(email, password);
         toast("Welcome back!", { theme: "dark" });
         onClose();
