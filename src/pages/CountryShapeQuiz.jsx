@@ -4,7 +4,26 @@ import { Globe } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
 
-const TOTAL = countries.data.length;
+// Continent name mapping
+const continentNames = {
+  AF: "Africa",
+  AN: "Antarctica",
+  AS: "Asia",
+  EU: "Europe",
+  NA: "North America",
+  OC: "Oceania",
+  SA: "South America",
+};
+
+const ALL_CONTINENTS = [
+  "All",
+  ...Object.keys(continentNames).filter((k) => k !== "AN"),
+];
+
+const getCountriesForContinent = (continent) =>
+  continent === "All"
+    ? countries.data
+    : countries.data.filter((c) => c.continent === continentNames[continent]);
 const shuffleArray = (a) => {
   const arr = [...a];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -48,6 +67,8 @@ const isAnswerCorrect = (answerText, countryObj) => {
 };
 
 const CountryShapeQuiz = () => {
+  const [selectedContinent, setSelectedContinent] = useState("All");
+
   const getInitialQuiz = () => {
     const saved = localStorage.getItem("shapeQuiz");
     if (saved) {
@@ -55,7 +76,7 @@ const CountryShapeQuiz = () => {
         return JSON.parse(saved);
       } catch {}
     }
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent("All"));
     return {
       score: 0,
       remainingCountries: s,
@@ -266,16 +287,7 @@ const CountryShapeQuiz = () => {
     if (!s) return 0;
     return Math.floor((Date.now() - Number(s)) / 1000);
   });
-  const hasSavedProgress = React.useMemo(() => {
-    const s = localStorage.getItem("shapeQuiz");
-    if (!s) return false;
-    try {
-      const p = JSON.parse(s);
-      return p.remainingCountries && p.remainingCountries.length < TOTAL;
-    } catch {
-      return false;
-    }
-  }, []);
+  const hasSavedProgress = quiz.score > 0 && quiz.remainingCountries.length > 0;
 
   const triggerShake = () => {
     setShake(true);
@@ -343,7 +355,7 @@ const CountryShapeQuiz = () => {
   const handleReset = useCallback(() => {
     localStorage.removeItem("shapeQuiz");
     localStorage.setItem("shapeQuizStartTime", Date.now().toString());
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent));
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -356,7 +368,7 @@ const CountryShapeQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  }, []);
+  }, [selectedContinent]);
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("shapeQuizStartTime"))
       localStorage.setItem("shapeQuizStartTime", Date.now().toString());
@@ -367,7 +379,7 @@ const CountryShapeQuiz = () => {
   const handleStartNew = useCallback(() => {
     localStorage.removeItem("shapeQuiz");
     localStorage.setItem("shapeQuizStartTime", Date.now().toString());
-    const s = shuffleArray(countries.data);
+    const s = shuffleArray(getCountriesForContinent(selectedContinent));
     setQuiz({
       score: 0,
       remainingCountries: s,
@@ -380,7 +392,7 @@ const CountryShapeQuiz = () => {
     setImgLoaded(false);
     setElapsed(0);
     setStarted(true);
-  }, []);
+  }, [selectedContinent]);
 
   useEffect(() => {
     localStorage.setItem("shapeQuiz", JSON.stringify(quiz));
@@ -403,7 +415,9 @@ const CountryShapeQuiz = () => {
     `${Math.floor(s / 60)
       .toString()
       .padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
-  const progress = ((TOTAL - quiz.remainingCountries.length) / TOTAL) * 100;
+  const TOTAL = quiz.remainingCountries.length + quiz.score;
+  const progress =
+    TOTAL > 0 ? ((TOTAL - quiz.remainingCountries.length) / TOTAL) * 100 : 0;
   const firstLetter = quiz.currentCountry.country[0];
   const hintText = `${firstLetter}${"_ ".repeat(quiz.currentCountry.country.length - 1).trim()} (${quiz.currentCountry.country.length} letters)`;
   const btnBase =
@@ -448,10 +462,35 @@ const CountryShapeQuiz = () => {
                 Country Shape Quiz
               </h1>
               <p className="text-[0.9rem] text-white/50 leading-relaxed max-w-[380px] mb-2">
-                Identify all {TOTAL} country shapes of the world. Test your
-                recognition speed, memory, and geography skills!
+                Test your shape recognition speed, memory, and geography skills!
               </p>
-              <div className="flex flex-col gap-3 w-full text-left mb-5">
+
+              {/* Continent selector */}
+              <div className="w-full">
+                <p className="text-[0.72rem] font-bold text-white/40 uppercase tracking-widest mb-2 text-left">
+                  Filter by Continent
+                </p>
+                <div className="grid grid-cols-4 gap-1.5 max-sm:grid-cols-3">
+                  {ALL_CONTINENTS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setSelectedContinent(c)}
+                      className={`py-[0.45rem] px-2 text-[0.72rem] font-bold border cursor-pointer transition-all duration-150 active:scale-95 ${
+                        selectedContinent === c
+                          ? "bg-indigo-500/30 border-indigo-500/60 text-violet-300 shadow-[0_0_12px_rgba(99,102,241,0.25)]"
+                          : "bg-white/[0.03] border-white/10 text-white/45 hover:bg-white/8 hover:border-white/20 hover:text-white/80"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[0.72rem] text-white/30 mt-1.5 text-right">
+                  {getCountriesForContinent(selectedContinent).length} countries
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 w-full text-left mb-2">
                 {[
                   {
                     icon: "⏱️",
@@ -658,7 +697,7 @@ const CountryShapeQuiz = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
+              <div className="grid grid-cols-3 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
                 <button
                   className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:border-white/18 hover:text-white active:scale-[0.97]"
                   onClick={handleReset}
@@ -672,6 +711,13 @@ const CountryShapeQuiz = () => {
                   disabled={correct}
                 >
                   🏳️ Give Up
+                </button>
+                <button
+                  className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:border-white/18 hover:text-white active:scale-[0.97]"
+                  onClick={() => setStarted(false)}
+                  disabled={correct}
+                >
+                  🏠 Home
                 </button>
               </div>
             </>
