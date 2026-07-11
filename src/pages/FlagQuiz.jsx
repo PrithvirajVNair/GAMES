@@ -75,10 +75,16 @@ const FlagQuiz = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [submittingScore, setSubmittingScore] = useState(false);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
-  const [selectedContinent, setSelectedContinent] = useState("All");
+  const [selectedContinent, setSelectedContinent] = useState(() => {
+    return localStorage.getItem("flagQuizContinent") || "All";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("flagQuizContinent", selectedContinent);
+  }, [selectedContinent]);
 
   const handleSubmitScore = async () => {
-    if (selectedContinent !== "All") return;
+    if (selectedContinent !== "All" || quiz.score !== countries.data.length) return;
     if (!user) {
       setAuthModalOpen(true);
       return;
@@ -113,7 +119,8 @@ const FlagQuiz = () => {
         return JSON.parse(saved);
       } catch {}
     }
-    const s = shuffleArray(getCountriesForContinent("All"));
+    const continent = localStorage.getItem("flagQuizContinent") || "All";
+    const s = shuffleArray(getCountriesForContinent(continent));
     return {
       score: 0,
       remainingCountries: s,
@@ -445,7 +452,7 @@ const FlagQuiz = () => {
 
   // Auto-submit score to Supabase when quiz is completed
   useEffect(() => {
-    if (completed && !scoreSubmitted && selectedContinent === "All") {
+    if (completed && !scoreSubmitted && selectedContinent === "All" && quiz.score === countries.data.length) {
       if (user) {
         const autoSubmit = async () => {
           try {
@@ -475,7 +482,7 @@ const FlagQuiz = () => {
         });
       }
     }
-  }, [completed, user, scoreSubmitted, elapsed, selectedContinent]);
+  }, [completed, user, scoreSubmitted, elapsed, selectedContinent, quiz.score]);
 
   const formatTime = (s) =>
     `${Math.floor(s / 60)
