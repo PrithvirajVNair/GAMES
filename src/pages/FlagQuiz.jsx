@@ -680,7 +680,8 @@ const FlagQuiz = () => {
                   </button>
                 ) : (
                   <div className="bg-white/5 border border-white/8 rounded-xl p-3 mb-3 text-[0.8rem] text-white/55 text-center leading-relaxed">
-                    💡 Only saves to the leaderboard if 'All' continent is selected.
+                  💡 Leaderboard submissions are only available for the full
+                  world quiz (All continents).
                   </div>
                 )
               )}
