@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import logos from "../utils/logos";
 import { Building2 } from "lucide-react";
 import SidebarNav from "../components/Sidebar";
-import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
-import { useAuth } from "../context/AuthContext";
-import { supabase } from "../lib/supabase";
-import { toast } from "react-toastify";
-import AuthModal from "../components/AuthModal";
+import {
+  playDup as _playDup,
+  playLolPing as _playLolPing,
+  playAssistMe as _playAssistMe,
+  playError as _playError,
+} from "../utils/sound";
 
 const TOTAL = logos.data.length;
 const shuffle = (a) => {
@@ -19,40 +20,6 @@ const shuffle = (a) => {
 };
 
 const LogoQuiz = () => {
-  const { user } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [submittingScore, setSubmittingScore] = useState(false);
-  const [scoreSubmitted, setScoreSubmitted] = useState(false);
-
-  const handleSubmitScore = async () => {
-    if (!user) {
-      setAuthModalOpen(true);
-      return;
-    }
-
-    try {
-      setSubmittingScore(true);
-      const { error } = await supabase.from("leaderboard_scores").insert([
-        {
-          user_id: user.id,
-          score: quiz.score,
-          elapsed_time: elapsed,
-          quiz_type: "Logo Quiz",
-          created_at: new Date().toISOString(),
-        },
-      ]);
-
-      if (error) throw error;
-      toast("Score submitted to global leaderboard!", { theme: "dark" });
-      setScoreSubmitted(true);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit score: " + err.message, { theme: "dark" });
-    } finally {
-      setSubmittingScore(false);
-    }
-  };
-
   const getInitial = () => {
     const saved = localStorage.getItem("logoQuiz");
     if (saved) {
@@ -71,7 +38,7 @@ const LogoQuiz = () => {
     if (descMeta) {
       descMeta.setAttribute(
         "content",
-        "How well do you know famous global brands? Test your logo recognition skills with the interactive FQz Logo Quiz!"
+        "How well do you know famous global brands? Test your logo recognition skills with the interactive FQz Logo Quiz!",
       );
     }
   }, []);
@@ -157,101 +124,10 @@ const LogoQuiz = () => {
       return n;
     });
 
-  const playDup = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const o = c.createOscillator(),
-          g = c.createGain();
-        o.connect(g);
-        g.connect(c.destination);
-        o.type = "sine";
-        const t = c.currentTime;
-        o.frequency.setValueAtTime(880, t);
-        o.frequency.exponentialRampToValueAtTime(440, t + 0.08);
-        g.gain.setValueAtTime(0.003, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-        o.start(t);
-        o.stop(t + 0.18);
-        o.onended = () => c.close();
-      });
-    } catch {}
-  };
-  const playLolPing = () => {
-    if (isMutedRef.current) return;
-    try {
-      const a = new Audio(assistMeSfx);
-      a.volume = 0.003;
-      a.play();
-    } catch {}
-  };
-  const playAssistMe = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const t = c.currentTime,
-          bS = c.sampleRate * 0.22,
-          buf = c.createBuffer(1, bS, c.sampleRate),
-          d = buf.getChannelData(0);
-        for (let i = 0; i < bS; i++) d[i] = Math.random() * 2 - 1;
-        const n = c.createBufferSource();
-        n.buffer = buf;
-        const f = c.createBiquadFilter();
-        f.type = "bandpass";
-        f.frequency.setValueAtTime(3200, t);
-        f.frequency.exponentialRampToValueAtTime(400, t + 0.2);
-        f.Q.value = 1.8;
-        const nG = c.createGain();
-        nG.gain.setValueAtTime(0.003, t);
-        nG.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-        n.connect(f);
-        f.connect(nG);
-        nG.connect(c.destination);
-        n.start(t);
-        n.stop(t + 0.22);
-        const o = c.createOscillator(),
-          oG = c.createGain();
-        o.connect(oG);
-        oG.connect(c.destination);
-        o.type = "sine";
-        o.frequency.setValueAtTime(600, t);
-        o.frequency.exponentialRampToValueAtTime(80, t + 0.18);
-        oG.gain.setValueAtTime(0.003, t);
-        oG.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-        o.start(t);
-        o.stop(t + 0.18);
-        setTimeout(() => c.close(), 400);
-      });
-    } catch {}
-  };
-  const playError = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const t = c.currentTime,
-          o1 = c.createOscillator(),
-          o2 = c.createOscillator(),
-          g = c.createGain();
-        o1.connect(g);
-        o2.connect(g);
-        g.connect(c.destination);
-        o1.type = "sawtooth";
-        o2.type = "sawtooth";
-        o1.frequency.setValueAtTime(110, t);
-        o2.frequency.setValueAtTime(113, t);
-        g.gain.setValueAtTime(0.003, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-        o1.start(t);
-        o2.start(t);
-        o1.stop(t + 0.22);
-        o2.stop(t + 0.22);
-        o1.onended = () => c.close();
-      });
-    } catch {}
-  };
+  const playDup = () => _playDup(isMutedRef.current);
+  const playLolPing = () => _playLolPing(isMutedRef.current);
+  const playAssistMe = () => _playAssistMe(isMutedRef.current);
+  const playError = () => _playError(isMutedRef.current);
 
   const [shake, setShake] = useState(false),
     [correct, setCorrect] = useState(false),
@@ -283,36 +159,61 @@ const LogoQuiz = () => {
     setTimeout(() => setShake(false), 500);
   };
 
+  useEffect(() => {
+    if (!quiz.answer || !quiz.currentLogo) return;
+    const tr = quiz.answer.trim().toLowerCase();
+    const ex = quiz.currentLogo.name.toLowerCase();
+    const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
+
+    if (tr === ex || sanitize(tr) === sanitize(ex)) {
+      playDup();
+      setCorrect(true);
+      const timer = setTimeout(() => {
+        setCorrect(false);
+        setHint(false);
+        setImgLoaded(false);
+        setImgError(false);
+        setQuiz((prev) => {
+          const u = prev.remainingLogos.filter(
+            (l) => l.id !== prev.currentLogo.id,
+          );
+          if (u.length === 0) {
+            setCompleted(true);
+            localStorage.removeItem("logoQuiz");
+            return {
+              ...prev,
+              score: prev.score + 1,
+              remainingLogos: [],
+              currentLogo: null,
+              answer: "",
+            };
+          }
+          return {
+            score: prev.score + 1,
+            remainingLogos: u,
+            currentLogo: u[0],
+            answer: "",
+          };
+        });
+      }, 1100);
+      return () => clearTimeout(timer);
+    }
+  }, [quiz.answer, quiz.currentLogo]);
+
   const handleNext = useCallback(() => {
-    const tr = quiz.answer.trim().toLowerCase(),
-      ex = quiz.currentLogo.name.toLowerCase();
-    if (tr !== ex) {
+    if (correct) return;
+    const tr = quiz.answer.trim().toLowerCase();
+    const ex = quiz.currentLogo?.name.toLowerCase() || "";
+    const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
+
+    if (tr !== ex && sanitize(tr) !== sanitize(ex)) {
       playError();
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      if (typeof navigator !== "undefined" && navigator.vibrate)
+        navigator.vibrate([100, 50, 100]);
       triggerShake();
       return;
     }
-    playDup();
-    setCorrect(true);
-    setTimeout(() => {
-      setCorrect(false);
-      setHint(false);
-      setImgLoaded(false);
-      setImgError(false);
-      const u = quiz.remainingLogos.filter((l) => l.id !== quiz.currentLogo.id);
-      if (u.length === 0) {
-        setCompleted(true);
-        localStorage.removeItem("logoQuiz");
-        return;
-      }
-      setQuiz({
-        score: quiz.score + 1,
-        remainingLogos: u,
-        currentLogo: u[0],
-        answer: "",
-      });
-    }, 600);
-  }, [quiz]);
+  }, [quiz, correct]);
 
   const handleSkip = () => {
     playAssistMe();
@@ -343,7 +244,6 @@ const LogoQuiz = () => {
     setImgError(false);
     setElapsed(0);
     setStarted(true);
-    setScoreSubmitted(false);
   };
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("logoQuizStartTime"))
@@ -496,15 +396,9 @@ const LogoQuiz = () => {
               Logos Identified
             </div>
             <div className="text-white/40 mb-8">⏱ {fmt(elapsed)}</div>
+
             <button
-              className="w-full py-[0.9rem] mb-3 rounded-[14px] bg-[linear-gradient(135deg,#10b981,#059669)] text-white font-bold border-none cursor-pointer shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleSubmitScore}
-              disabled={submittingScore || scoreSubmitted || quiz.score === 0}
-            >
-              {submittingScore ? "Submitting Score..." : scoreSubmitted ? "Score Submitted! ✓" : "🏆 Submit to Leaderboard"}
-            </button>
-            <button
-              className="w-full py-[0.9rem] rounded-[14px] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white font-bold border-none cursor-pointer shadow-[0_6px_24px_rgba(99,102,241,0.4)] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] transition-all duration-150"
+              className="w-full py-[0.9rem] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white font-bold border-none cursor-pointer shadow-[0_6px_24px_rgba(99,102,241,0.4)] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] transition-all duration-150"
               onClick={() => newGame(false)}
             >
               🔄 {completed ? "Play Again" : "Try Again"}
@@ -655,11 +549,11 @@ const LogoQuiz = () => {
                 onClick={handleNext}
                 disabled={correct}
               >
-                Next ➜
+                Check ➜
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
+            <div className="grid grid-cols-3 gap-[0.6rem] mt-5 border-t border-white/6 pt-4">
               <button
                 className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:text-white active:scale-[0.97]"
                 onClick={() => newGame(false)}
@@ -674,11 +568,17 @@ const LogoQuiz = () => {
               >
                 🏳️ Give Up
               </button>
+              <button
+                className="inline-flex items-center justify-center gap-1.5 bg-white/[0.04] border border-white/8 text-white/55 py-[0.6rem] text-[0.82rem] font-bold rounded-xl cursor-pointer transition-all duration-150 hover:bg-white/10 hover:text-white active:scale-[0.97]"
+                onClick={() => setStarted(false)}
+                disabled={correct}
+              >
+                🏠 Home
+              </button>
             </div>
           </>
         )}
       </div>
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 };

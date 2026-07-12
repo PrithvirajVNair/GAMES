@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import countries from "../utils/countries";
 import Sidebar from "../components/Sidebar";
-import assistMeSfx from "../assets/sounds/Assist_Me_ping_SFX.ogg";
+import {
+  playDup as _playDup,
+  playLolPing as _playLolPing,
+  playAssistMe as _playAssistMe,
+  playError as _playError,
+} from "../utils/sound";
 import { Flag } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
@@ -211,101 +216,10 @@ const FlagQuiz = () => {
       return n;
     });
 
-  const playDup = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const o = c.createOscillator(),
-          g = c.createGain();
-        o.connect(g);
-        g.connect(c.destination);
-        o.type = "sine";
-        const t = c.currentTime;
-        o.frequency.setValueAtTime(880, t);
-        o.frequency.exponentialRampToValueAtTime(440, t + 0.08);
-        g.gain.setValueAtTime(0.003, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-        o.start(t);
-        o.stop(t + 0.18);
-        o.onended = () => c.close();
-      });
-    } catch {}
-  };
-  const playLolPing = () => {
-    if (isMutedRef.current) return;
-    try {
-      const a = new Audio(assistMeSfx);
-      a.volume = 0.003;
-      a.play();
-    } catch {}
-  };
-  const playAssistMe = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const t = c.currentTime,
-          bS = c.sampleRate * 0.22,
-          buf = c.createBuffer(1, bS, c.sampleRate),
-          d = buf.getChannelData(0);
-        for (let i = 0; i < bS; i++) d[i] = Math.random() * 2 - 1;
-        const n = c.createBufferSource();
-        n.buffer = buf;
-        const f = c.createBiquadFilter();
-        f.type = "bandpass";
-        f.frequency.setValueAtTime(3200, t);
-        f.frequency.exponentialRampToValueAtTime(400, t + 0.2);
-        f.Q.value = 1.8;
-        const nG = c.createGain();
-        nG.gain.setValueAtTime(0.003, t);
-        nG.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-        n.connect(f);
-        f.connect(nG);
-        nG.connect(c.destination);
-        n.start(t);
-        n.stop(t + 0.22);
-        const o = c.createOscillator(),
-          oG = c.createGain();
-        o.connect(oG);
-        oG.connect(c.destination);
-        o.type = "sine";
-        o.frequency.setValueAtTime(600, t);
-        o.frequency.exponentialRampToValueAtTime(80, t + 0.18);
-        oG.gain.setValueAtTime(0.003, t);
-        oG.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-        o.start(t);
-        o.stop(t + 0.18);
-        setTimeout(() => c.close(), 400);
-      });
-    } catch {}
-  };
-  const playError = () => {
-    if (isMutedRef.current) return;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      c.resume().then(() => {
-        const t = c.currentTime,
-          o1 = c.createOscillator(),
-          o2 = c.createOscillator(),
-          g = c.createGain();
-        o1.connect(g);
-        o2.connect(g);
-        g.connect(c.destination);
-        o1.type = "sawtooth";
-        o2.type = "sawtooth";
-        o1.frequency.setValueAtTime(110, t);
-        o2.frequency.setValueAtTime(113, t);
-        g.gain.setValueAtTime(0.003, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-        o1.start(t);
-        o2.start(t);
-        o1.stop(t + 0.22);
-        o2.stop(t + 0.22);
-        o1.onended = () => c.close();
-      });
-    } catch {}
-  };
+  const playDup = () => _playDup(isMutedRef.current);
+  const playLolPing = () => _playLolPing(isMutedRef.current);
+  const playAssistMe = () => _playAssistMe(isMutedRef.current);
+  const playError = () => _playError(isMutedRef.current);
 
   const [shake, setShake] = useState(false),
     [correct, setCorrect] = useState(false),
@@ -358,7 +272,7 @@ const FlagQuiz = () => {
             answer: "",
           };
         });
-      }, 600);
+      }, 1100);
       return () => clearTimeout(timer);
     }
   }, [quiz.answer, quiz.currentCountry]);
@@ -663,8 +577,8 @@ const FlagQuiz = () => {
               <div className="text-white/40 text-[0.9rem] mb-6 tracking-widest">
                 ⏱ {formatTime(elapsed)}
               </div>
-              {completed && (
-                selectedContinent === "All" ? (
+              {completed &&
+                (selectedContinent === "All" ? (
                   <button
                     className="w-full py-[0.9rem] mb-3 bg-[linear-gradient(135deg,#10b981,#059669)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(16,185,129,0.3)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(16,185,129,0.4)] active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleSubmitScore}
@@ -680,11 +594,10 @@ const FlagQuiz = () => {
                   </button>
                 ) : (
                   <div className="bg-white/5 border border-white/8 p-3 mb-3 text-[0.8rem] text-white/55 text-center leading-relaxed">
-                  💡 Leaderboard submissions are only available for the full
-                  world quiz (All continents).
+                    💡 Leaderboard submissions are only available for the full
+                    world quiz (All continents).
                   </div>
-                )
-              )}
+                ))}
               <button
                 className="w-full py-[0.9rem] bg-[linear-gradient(135deg,#6366f1,#a78bfa)] text-white text-base font-bold border-none cursor-pointer tracking-wide shadow-[0_6px_24px_rgba(99,102,241,0.4)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(99,102,241,0.5)] active:scale-[0.97]"
                 onClick={handleReset}

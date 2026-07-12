@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Ellipsis, Flag, MapPinned, Home, Gamepad2, Settings, LogIn, LogOut, User, UserPlus, Trophy } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -58,6 +59,17 @@ const Sidebar = ({ isOpen, onClose }) => {
       toast.error("Logout failed: " + error.message, { theme: "dark" });
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <>
