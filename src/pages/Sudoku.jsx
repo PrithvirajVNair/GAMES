@@ -127,6 +127,18 @@ const Sudoku = () => {
     };
   }, []);
 
+  useEffect(() => {
+  document.title = "Sudoku - Daily Challenge & Unlimited Mode | FQz Games";
+
+  const descMeta = document.querySelector('meta[name="description"]');
+  if (descMeta) {
+    descMeta.setAttribute(
+      "content",
+      "Play Daily Sudoku and Unlimited Sudoku on FQz Games. Complete daily challenges, climb the leaderboard, and improve your puzzle-solving skills.",
+    );
+  }
+}, []);
+
   // Notes state
   const [pencilMode, setPencilMode] = useState(false);
   const [notes, setNotes] = useState({}); // { 'row-col': [1, 2] }
