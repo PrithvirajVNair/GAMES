@@ -245,7 +245,7 @@ const CountryShapeQuiz = () => {
             answer: "",
           };
         });
-      }, 1100);
+      }, 150);
       return () => clearTimeout(timer);
     }
   }, [quiz.answer, quiz.currentCountry]);
