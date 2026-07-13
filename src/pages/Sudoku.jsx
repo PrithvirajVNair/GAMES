@@ -130,16 +130,16 @@ const Sudoku = () => {
   }, []);
 
   useEffect(() => {
-  document.title = "Sudoku - Daily Challenge & Unlimited Mode | FQz Games";
+    document.title = "Sudoku - Daily Challenge & Unlimited Mode | FQz Games";
 
-  const descMeta = document.querySelector('meta[name="description"]');
-  if (descMeta) {
-    descMeta.setAttribute(
-      "content",
-      "Play Daily Sudoku and Unlimited Sudoku on FQz Games. Complete daily challenges, climb the leaderboard, and improve your puzzle-solving skills.",
-    );
-  }
-}, []);
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        "Play Daily Sudoku and Unlimited Sudoku on FQz Games. Complete daily challenges, climb the leaderboard, and improve your puzzle-solving skills.",
+      );
+    }
+  }, []);
 
   // Notes state
   const [pencilMode, setPencilMode] = useState(false);
@@ -221,7 +221,7 @@ const Sudoku = () => {
       const completed = await hasCompletedToday(seed, uid);
       const streak = await getDailyStreak(uid);
       setDailyStreak(streak);
-      
+
       if (completed) {
         const result = await getCompletedResult(seed, uid);
         setDailyCompletedResult(result);
@@ -266,7 +266,7 @@ const Sudoku = () => {
           mistakes: 0, // not currently tracked in-game
         });
         clearInProgress(seed, uid);
-        setDailyStreak(prev => prev + 1);
+        setDailyStreak((prev) => prev + 1);
       }
     }
   }, [
@@ -942,7 +942,7 @@ const Sudoku = () => {
                       /* Resume Choice */
                       <div className="flex flex-col gap-3 w-full animate-fade-in-scale">
                         <button
-                          className="w-full py-[0.7rem] sm:py-[0.85rem] text-[0.82rem] sm:text-[0.9rem] font-bold border-none cursor-pointer rounded-xl bg-[linear-gradient(135deg,#ec4899,#f43f5e)] text-white shadow-[0_4px_18px_rgba(236,72,153,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(236,72,153,0.5)] hover:-translate-y-px active:scale-[0.98]"
+                          className="w-full py-[0.7rem] sm:py-[0.85rem] text-[0.82rem] sm:text-[0.9rem] font-bold border-none cursor-pointer bg-[linear-gradient(135deg,#ec4899,#f43f5e)] text-white shadow-[0_4px_18px_rgba(236,72,153,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(236,72,153,0.5)] hover:-translate-y-px active:scale-[0.98]"
                           onClick={() => {
                             setInitialBoard(dailyInProgress.initialBoard);
                             setBoard(dailyInProgress.board);
@@ -960,7 +960,7 @@ const Sudoku = () => {
                           ▶ Resume Today's Puzzle
                         </button>
                         <button
-                          className="w-full py-[0.7rem] sm:py-[0.85rem] text-[0.82rem] sm:text-[0.9rem] font-bold cursor-pointer rounded-xl bg-white/[0.04] border-[1.5px] border-white/8 text-white/60 hover:bg-white/8 hover:text-white transition-all duration-200 active:scale-[0.98]"
+                          className="w-full py-[0.7rem] sm:py-[0.85rem] text-[0.82rem] sm:text-[0.9rem] font-bold cursor-pointer bg-white/[0.04] border-[1.5px] border-white/8 text-white/60 hover:bg-white/8 hover:text-white transition-all duration-200 active:scale-[0.98]"
                           onClick={() => startNewGame("MEDIUM", "daily")}
                         >
                           🔄 Restart Puzzle
@@ -969,7 +969,7 @@ const Sudoku = () => {
                     ) : (
                       <button
                         onClick={() => startNewGame("MEDIUM", "daily")}
-                        className="w-full py-[0.8rem] sm:py-[0.95rem] text-[0.85rem] sm:text-[0.95rem] font-bold border-none cursor-pointer rounded-xl bg-[linear-gradient(135deg,#ec4899,#f43f5e)] text-white shadow-[0_4px_18px_rgba(236,72,153,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(236,72,153,0.5)] hover:-translate-y-px active:scale-[0.98]"
+                        className="w-full py-[0.8rem] sm:py-[0.95rem] text-[0.85rem] sm:text-[0.95rem] font-bold border-none cursor-pointer bg-[linear-gradient(135deg,#ec4899,#f43f5e)] text-white shadow-[0_4px_18px_rgba(236,72,153,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(236,72,153,0.5)] hover:-translate-y-px active:scale-[0.98]"
                       >
                         ▶ Play Today's Puzzle
                       </button>
