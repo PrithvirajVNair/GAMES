@@ -160,6 +160,7 @@ const LogoQuiz = () => {
   };
 
   useEffect(() => {
+    if (correct) return;
     if (!quiz.answer || !quiz.currentLogo) return;
     const tr = quiz.answer.trim().toLowerCase();
     const ex = quiz.currentLogo.name.toLowerCase();
@@ -168,7 +169,7 @@ const LogoQuiz = () => {
     if (tr === ex || sanitize(tr) === sanitize(ex)) {
       playDup();
       setCorrect(true);
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setCorrect(false);
         setHint(false);
         setImgLoaded(false);
@@ -196,9 +197,8 @@ const LogoQuiz = () => {
           };
         });
       }, 150);
-      return () => clearTimeout(timer);
     }
-  }, [quiz.answer, quiz.currentLogo]);
+  }, [quiz.answer, quiz.currentLogo, correct]);
 
   const handleNext = useCallback(() => {
     if (correct) return;

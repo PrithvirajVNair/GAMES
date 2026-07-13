@@ -221,11 +221,12 @@ const CountryShapeQuiz = () => {
   };
   // Auto-advance if the answer is correct
   useEffect(() => {
+    if (correct) return;
     if (!quiz.answer || !quiz.currentCountry) return;
     if (isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
       playDup();
       setCorrect(true);
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setCorrect(false);
         setHint(false);
         setImgLoaded(false);
@@ -246,9 +247,8 @@ const CountryShapeQuiz = () => {
           };
         });
       }, 150);
-      return () => clearTimeout(timer);
     }
-  }, [quiz.answer, quiz.currentCountry]);
+  }, [quiz.answer, quiz.currentCountry, correct]);
 
   const handleNext = useCallback(() => {
     if (correct) return;
