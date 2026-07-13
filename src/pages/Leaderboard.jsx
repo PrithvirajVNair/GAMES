@@ -11,11 +11,20 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import { getLeaderboard } from "../services/leaderboardService";
+import { LEADERBOARD_MODES } from "../utils/leaderboardConstants";
+
+const getTodaySeed = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 const Leaderboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeGame, setActiveGame] = useState("flag"); // "flag", "sudoku"
+  const [sudokuSubMode, setSudokuSubMode] = useState("daily"); // "daily", "unlimited"
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,42 +34,59 @@ const Leaderboard = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch all scores and their usernames
-      const { data, error: fetchError } = await supabase.from("scores").select(`
-          id,
-          time_ms,
-          created_at,
-          user_id,
-          profiles:user_id (
-            username
-          )
-        `);
+      if (activeGame === "flag") {
+        // Fetch all scores and their usernames
+        const { data, error: fetchError } = await supabase.from("scores").select(`
+            id,
+            time_ms,
+            created_at,
+            user_id,
+            profiles:user_id (
+              username
+            )
+          `);
 
-      if (fetchError) throw fetchError;
+        if (fetchError) throw fetchError;
 
-      // Group by user_id to filter for the best score (minimum time_ms) of each user
-      const bestScoresMap = {};
-      (data || []).forEach((row) => {
-        const userId = row.user_id;
-        if (!userId) return;
+        // Group by user_id to filter for the best score (minimum time_ms) of each user
+        const bestScoresMap = {};
+        (data || []).forEach((row) => {
+          const userId = row.user_id;
+          if (!userId) return;
 
-        const existing = bestScoresMap[userId];
-        if (!existing) {
-          bestScoresMap[userId] = row;
-        } else {
-          // A lower time_ms is better
-          if (row.time_ms < existing.time_ms) {
+          const existing = bestScoresMap[userId];
+          if (!existing) {
             bestScoresMap[userId] = row;
+          } else {
+            // A lower time_ms is better
+            if (row.time_ms < existing.time_ms) {
+              bestScoresMap[userId] = row;
+            }
           }
-        }
-      });
+        });
 
-      // Sort the grouped array by time_ms ascending (fastest first)
-      const sortedLeaderboard = Object.values(bestScoresMap)
-        .sort((a, b) => a.time_ms - b.time_ms)
-        .slice(0, 100); // Limit to top 100 players
+        // Sort the grouped array by time_ms ascending (fastest first)
+        const sortedLeaderboard = Object.values(bestScoresMap)
+          .sort((a, b) => a.time_ms - b.time_ms)
+          .slice(0, 100); // Limit to top 100 players
 
-      setScores(sortedLeaderboard);
+        setScores(sortedLeaderboard);
+      } else if (activeGame === "sudoku") {
+        // Sudoku
+        const mode = sudokuSubMode === "daily" ? 'daily' : 'unlimited';
+        const seed = sudokuSubMode === "daily" ? getTodaySeed() : null;
+        const data = await getLeaderboard({ mode, seed, limit: 100 });
+        
+        // Map data to match flag quiz structure so the UI works perfectly!
+        const mappedData = data.map(d => ({
+          id: d.id,
+          time_ms: d.timeMs,
+          created_at: d.date,
+          user_id: d.userId,
+          profiles: { username: d.username }
+        }));
+        setScores(mappedData);
+      }
     } catch (err) {
       console.error("Error fetching leaderboard:", err);
       setError("Failed to load leaderboard data. Please try again.");
@@ -70,9 +96,13 @@ const Leaderboard = () => {
   };
 
   useEffect(() => {
-    document.title = "Flag Quiz Leaderboard | FQz Games";
+    let title = "Flag Quiz Leaderboard";
+    if (activeGame === "sudoku") {
+      title = sudokuSubMode === "daily" ? "Daily Sudoku Leaderboard" : "Unlimited Sudoku Leaderboard";
+    }
+    document.title = `${title} | FQz Games`;
     fetchLeaderboard();
-  }, []);
+  }, [activeGame, sudokuSubMode]);
 
   const formatTime = (s) => {
     if (!s && s !== 0) return "N/A";
@@ -164,7 +194,9 @@ const Leaderboard = () => {
               <div className="flex items-center gap-2">
                 <Trophy size={22} className="text-amber-400" />
                 <h1 className="text-[clamp(1.3rem,4vw,1.7rem)] font-extrabold tracking-tight text-white">
-                  Flag Quiz Leaderboard
+                  {activeGame === 'flag' && 'Flag Quiz Leaderboard'}
+                  {activeGame === 'sudoku' && sudokuSubMode === 'daily' && 'Daily Challenge (Sudoku)'}
+                  {activeGame === 'sudoku' && sudokuSubMode === 'unlimited' && 'Unlimited Expert (Sudoku)'}
                 </h1>
               </div>
             </div>
@@ -177,6 +209,57 @@ const Leaderboard = () => {
               Refresh
             </button>
           </div>
+
+          {/* Game Selection Tabs */}
+          <div className="flex bg-[#0f172a] rounded-xl p-1.5 mb-2 gap-1 border border-white/5">
+            <button
+              onClick={() => setActiveGame('flag')}
+              className={`flex-1 py-2 px-3 text-[0.8rem] sm:text-[0.85rem] font-bold rounded-lg transition-all duration-200 ${
+                activeGame === 'flag'
+                  ? 'bg-[linear-gradient(135deg,#0d9488,#0284c7)] text-white shadow-[0_4px_12px_rgba(13,148,136,0.3)]'
+                  : 'text-white/50 hover:bg-white/5 hover:text-white/80'
+              }`}
+            >
+              🚩 Flag Quiz
+            </button>
+            <button
+              onClick={() => setActiveGame('sudoku')}
+              className={`flex-1 py-2 px-3 text-[0.8rem] sm:text-[0.85rem] font-bold rounded-lg transition-all duration-200 ${
+                activeGame === 'sudoku'
+                  ? 'bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
+                  : 'text-white/50 hover:bg-white/5 hover:text-white/80'
+              }`}
+            >
+              🧩 Sudoku
+            </button>
+          </div>
+
+          {/* Sudoku Sub-tabs */}
+          {activeGame === 'sudoku' && (
+            <div className="flex bg-[#0f172a]/50 rounded-xl p-1 mb-6 gap-1 border border-white/5 max-w-[300px] mx-auto">
+              <button
+                onClick={() => setSudokuSubMode('daily')}
+                className={`flex-1 py-1.5 px-3 text-[0.75rem] sm:text-[0.8rem] font-bold rounded-lg transition-all duration-200 ${
+                  sudokuSubMode === 'daily'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-white/40 hover:bg-white/5 hover:text-white/70'
+                }`}
+              >
+                📅 Daily
+              </button>
+              <button
+                onClick={() => setSudokuSubMode('unlimited')}
+                className={`flex-1 py-1.5 px-3 text-[0.75rem] sm:text-[0.8rem] font-bold rounded-lg transition-all duration-200 ${
+                  sudokuSubMode === 'unlimited'
+                    ? 'bg-white/10 text-white shadow-sm'
+                    : 'text-white/40 hover:bg-white/5 hover:text-white/70'
+                }`}
+              >
+                ♾️ Unlimited
+              </button>
+            </div>
+          )}
+          {activeGame === 'flag' && <div className="mb-6" />}
 
           {/* Leaderboard Table/List */}
           {loading ? (
