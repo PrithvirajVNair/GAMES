@@ -27,7 +27,10 @@ const SignIn = () => {
 
     try {
       setLoading(true);
-      localStorage.setItem("supabase.rememberMe", rememberMe ? "true" : "false");
+      localStorage.setItem(
+        "supabase.rememberMe",
+        rememberMe ? "true" : "false",
+      );
       await signIn(email, password);
       toast("Welcome back!", { theme: "dark" });
       navigate(from, { replace: true });
@@ -49,8 +52,14 @@ const SignIn = () => {
     <>
       <div className="min-h-screen bg-[linear-gradient(135deg,#0a0f1e_0%,#0f1929_50%,#0d1520_100%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
         {/* Decorative Orbs */}
-        <div className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]" style={{ left: "20%", top: "20%" }} />
-        <div className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]" style={{ left: "55%", top: "60%" }} />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]"
+          style={{ left: "20%", top: "20%" }}
+        />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]"
+          style={{ left: "55%", top: "60%" }}
+        />
 
         {/* Sidebar Trigger */}
         <button
@@ -133,7 +142,9 @@ const SignIn = () => {
                   disabled={loading}
                   className="w-4 h-4 rounded bg-white/6 border border-white/12 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-indigo-500"
                 />
-                <span className="text-[0.78rem] font-bold text-white/55">Remember me</span>
+                <span className="text-[0.78rem] font-bold text-white/55">
+                  Remember me
+                </span>
               </label>
             </div>
 

@@ -181,19 +181,19 @@ const Leaderboard = () => {
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Main Card container */}
-        <div className="relative z-[1] w-full max-w-[800px] bg-white/[0.04] border border-white/10 p-8 max-sm:p-4 backdrop-blur-[20px] shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.05)]">
+        <div className="relative z-[1] w-full max-w-[800px] bg-white/[0.04] border border-white/10 p-6 sm:p-8 max-sm:p-3 max-sm:py-5 backdrop-blur-[20px] shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.05)]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+            <div className="flex items-center gap-2.5 min-w-0 w-full sm:w-auto">
               <button
                 onClick={() => navigate(-1)}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/12 text-white/60 cursor-pointer transition-all duration-150 hover:bg-white/12 hover:text-white active:scale-90"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/12 text-white/60 cursor-pointer transition-all duration-150 hover:bg-white/12 hover:text-white active:scale-90 flex-shrink-0"
               >
                 <ArrowLeft size={16} />
               </button>
-              <div className="flex items-center gap-2">
-                <Trophy size={22} className="text-amber-400" />
-                <h1 className="text-[clamp(1.3rem,4vw,1.7rem)] font-extrabold tracking-tight text-white">
+              <div className="flex items-start gap-1.5 sm:gap-2 min-w-0 flex-1">
+                <Trophy size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <h1 className="text-[1.05rem] sm:text-[1.3rem] md:text-[1.7rem] font-extrabold tracking-tight text-white leading-tight">
                   {activeGame === 'flag' && 'Flag Quiz Leaderboard'}
                   {activeGame === 'sudoku' && sudokuSubMode === 'daily' && 'Daily Challenge (Sudoku)'}
                   {activeGame === 'sudoku' && sudokuSubMode === 'unlimited' && 'Unlimited Expert (Sudoku)'}
@@ -202,7 +202,7 @@ const Leaderboard = () => {
             </div>
             <button
               onClick={() => fetchLeaderboard()}
-              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 px-3 py-1.5 text-[0.82rem] font-bold transition-all duration-150 cursor-pointer active:scale-95"
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 px-3 py-1.5 text-[0.82rem] font-bold transition-all duration-150 cursor-pointer active:scale-95 self-end sm:self-auto"
               disabled={loading}
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
@@ -294,12 +294,12 @@ const Leaderboard = () => {
             </div>
           ) : (
             <div className="overflow-hidden">
-              <table className="w-full border-collapse text-left">
+              <table className="w-full border-collapse text-left table-fixed">
                 <thead>
-                  <tr className="border-b border-white/8 text-[0.74rem] font-bold text-white/40 uppercase tracking-wider">
-                    <th className="pb-3 pl-2 w-[70px]">Rank</th>
+                  <tr className="border-b border-white/8 text-[0.68rem] sm:text-[0.74rem] font-bold text-white/40 uppercase tracking-wider">
+                    <th className="pb-3 pl-1 sm:pl-2 w-[40px] sm:w-[70px]">Rank</th>
                     <th className="pb-3">Player</th>
-                    <th className="pb-3 pr-2 text-right">Time</th>
+                    <th className="pb-3 pr-1 sm:pr-2 text-right w-[75px] sm:w-[110px]">Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -347,12 +347,12 @@ const Leaderboard = () => {
                         style={{ clipPath: "inset(0)", ...rowStyle }}
                       >
                         {/* Rank */}
-                        <td className="py-4 pl-2 font-black text-[1rem]">
+                        <td className="py-3 sm:py-4 pl-1 sm:pl-2 font-black text-[0.9rem] sm:text-[1rem]">
                           <div className="relative z-10">
                             {typeof rankBadge === "string" ? (
-                              <span className="text-[1.2rem]">{rankBadge}</span>
+                              <span className="text-[1.1rem] sm:text-[1.2rem]">{rankBadge}</span>
                             ) : (
-                              <span className="text-white/35 pl-1.5">
+                              <span className="text-white/35 pl-1 sm:pl-1.5">
                                 {rankBadge}
                               </span>
                             )}
@@ -360,7 +360,7 @@ const Leaderboard = () => {
                         </td>
 
                         {/* Player Name */}
-                        <td className="py-4 font-bold text-[0.92rem]">
+                        <td className="py-3 sm:py-4 font-bold text-[0.82rem] sm:text-[0.92rem]">
                           {/* Animated Ambient Orb */}
                           {rank === 1 && (
                             <div
@@ -428,9 +428,9 @@ const Leaderboard = () => {
                               />
                             </div>
                           )}
-                          <div className="flex items-center gap-2 relative z-10">
+                          <div className="flex items-center gap-1.5 relative z-10 w-full min-w-0">
                             <span
-                              className={
+                              className={`truncate ${
                                 isCurrentUser
                                   ? "text-indigo-300 font-extrabold"
                                   : rank === 1
@@ -440,23 +440,23 @@ const Leaderboard = () => {
                                       : rank === 3
                                         ? "text-amber-200 font-bold"
                                         : "text-white/90"
-                              }
+                              }`}
                             >
                               {username}
                             </span>
                             {isCurrentUser && (
-                              <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[0.62rem] px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                              <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[0.58rem] sm:text-[0.62rem] px-1.5 py-0.5 rounded font-black uppercase tracking-wider flex-shrink-0">
                                 You
                               </span>
                             )}
                           </div>
-                          <span className="block text-[0.72rem] text-white/30 font-medium mt-0.5 relative z-10">
+                          <span className="block text-[0.68rem] sm:text-[0.72rem] text-white/30 font-medium mt-0.5 relative z-10">
                             {formatDate(score.created_at)}
                           </span>
                         </td>
 
                         {/* Elapsed Time */}
-                        <td className="py-4 pr-2 text-right text-white/60 font-medium text-[0.88rem]">
+                        <td className="py-3 sm:py-4 pr-1 sm:pr-2 text-right text-white/60 font-medium text-[0.8rem] sm:text-[0.88rem]">
                           <span className="relative z-10">
                             ⏱ {formatTime(seconds)}
                           </span>

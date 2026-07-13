@@ -62,10 +62,13 @@ const SignUp = () => {
         toast("Account created successfully!", { theme: "dark" });
         navigate(from, { replace: true });
       } else {
-        toast("Account created successfully. Please verify your email before signing in.", {
-          theme: "dark",
-          autoClose: 8000,
-        });
+        toast(
+          "Account created successfully. Please verify your email before signing in.",
+          {
+            theme: "dark",
+            autoClose: 8000,
+          },
+        );
         navigate("/signin", { replace: true });
       }
     } catch (error) {
@@ -84,8 +87,14 @@ const SignUp = () => {
     <>
       <div className="min-h-screen bg-[linear-gradient(135deg,#0a0f1e_0%,#0f1929_50%,#0d1520_100%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
         {/* Decorative Orbs */}
-        <div className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]" style={{ left: "20%", top: "20%" }} />
-        <div className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]" style={{ left: "55%", top: "60%" }} />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]"
+          style={{ left: "20%", top: "20%" }}
+        />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]"
+          style={{ left: "55%", top: "60%" }}
+        />
 
         {/* Sidebar Trigger */}
         <button
