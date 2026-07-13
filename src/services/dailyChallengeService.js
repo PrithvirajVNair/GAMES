@@ -202,3 +202,116 @@ export const clearInProgress = async (seed, userId) => {
     console.error('Error clearing in-progress daily:', error);
   }
 };
+
+/**
+ * Calculates the user's current daily challenge streak.
+ * @param {string} userId - User's unique identifier
+ * @returns {Promise<number>} The current streak count
+ */
+export const calculateStreakFromDates = (dates) => {
+  if (!dates || dates.length === 0) return 0;
+  
+  // Parse YYYY-MM-DD as local date to prevent UTC timezone shifts
+  const parseLocalDate = (dateStr) => {
+    const [y, m, d] = dateStr.split('-');
+    return new Date(y, m - 1, d);
+  };
+
+  const completedDates = [...dates].sort((a, b) => parseLocalDate(b) - parseLocalDate(a));
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+
+  if (!completedDates.includes(todayStr) && !completedDates.includes(yesterdayStr)) {
+    return 0;
+  }
+
+  let streak = 0;
+  let currentDate = parseLocalDate(completedDates[0]);
+
+  for (let i = 0; i < completedDates.length; i++) {
+    const seedStr = completedDates[i];
+    const expectedStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+    
+    if (seedStr === expectedStr) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+};
+
+export const getDailyStreak = async (userId) => {
+  if (!userId) return 0;
+
+  let completedDates = [];
+
+  if (userId === 'local') {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('fqz_daily_') && key.endsWith('_local')) {
+        const seed = key.split('_')[2];
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data && data.completed) {
+            completedDates.push(seed);
+          }
+        } catch (e) {}
+      }
+    }
+  } else {
+    const [{ data: progData }, { data: scoreData }] = await Promise.all([
+      supabase.from('sudoku_daily_progress').select('seed').eq('user_id', userId).eq('completed', true),
+      supabase.from('sudoku_daily_scores').select('seed').eq('user_id', userId)
+    ]);
+
+    const progSeeds = progData ? progData.map(r => r.seed) : [];
+    const scoreSeeds = scoreData ? scoreData.map(r => r.seed) : [];
+    
+    // Merge and deduplicate
+    completedDates = [...new Set([...progSeeds, ...scoreSeeds])];
+  }
+
+  return calculateStreakFromDates(completedDates);
+};
+
+/**
+ * Calculates streaks for multiple users in bulk (for leaderboards).
+ * @param {string[]} userIds - Array of user identifiers
+ * @returns {Promise<Object>} A map of userId to streak count
+ */
+export const getDailyStreaksForUsers = async (userIds) => {
+  if (!userIds || userIds.length === 0) return {};
+  
+  const [{ data: progData }, { data: scoreData }] = await Promise.all([
+    supabase.from('sudoku_daily_progress').select('user_id, seed').eq('completed', true).in('user_id', userIds),
+    supabase.from('sudoku_daily_scores').select('user_id, seed').in('user_id', userIds)
+  ]);
+  
+  const userDates = {};
+  
+  const addRows = (rows) => {
+    if (!rows) return;
+    rows.forEach(row => {
+      if (!userDates[row.user_id]) userDates[row.user_id] = new Set();
+      userDates[row.user_id].add(row.seed);
+    });
+  };
+
+  addRows(progData);
+  addRows(scoreData);
+  
+  const userStreaks = {};
+  Object.keys(userDates).forEach(uid => {
+    userStreaks[uid] = calculateStreakFromDates(Array.from(userDates[uid]));
+  });
+  
+  return userStreaks;
+};

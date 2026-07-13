@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getDailyStreaksForUsers } from './dailyChallengeService';
 
 /**
  * Submits a new score to the leaderboard.
@@ -94,6 +95,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     // Fetch profiles separately to avoid FK relationship issues
     const userIds = [...new Set(scoresData.map(s => s.user_id))];
     let profilesMap = {};
+    let streaksMap = {};
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -106,6 +108,8 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
           return acc;
         }, {});
       }
+      
+      streaksMap = await getDailyStreaksForUsers(userIds);
     }
 
     // Format to match old structure
@@ -114,6 +118,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
       avatar: profilesMap[row.user_id]?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${row.user_id}`,
+      streak: streaksMap[row.user_id] || 0,
       mode: 'daily',
       seed: row.seed,
       timeMs: row.time_ms,
@@ -133,6 +138,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     // Fetch profiles separately
     const userIds = [...new Set(scoresData.map(s => s.user_id))];
     let profilesMap = {};
+    let streaksMap = {};
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -145,6 +151,8 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
           return acc;
         }, {});
       }
+      
+      streaksMap = await getDailyStreaksForUsers(userIds);
     }
 
     return scoresData.map(row => ({
@@ -152,6 +160,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
       avatar: profilesMap[row.user_id]?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${row.user_id}`,
+      streak: streaksMap[row.user_id] || 0,
       mode: 'unlimited',
       timeMs: row.time_ms,
       mistakes: row.mistakes,

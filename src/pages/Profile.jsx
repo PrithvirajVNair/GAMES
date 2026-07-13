@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { User, Award, Calendar, ArrowLeft } from "lucide-react";
+import { User, Award, Calendar, ArrowLeft, Flame } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import { getDailyStreak } from "../services/dailyChallengeService";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ const Profile = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scores, setScores] = useState([]);
   const [loadingScores, setLoadingScores] = useState(true);
+  const [dailyStreak, setDailyStreak] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -21,6 +23,9 @@ const Profile = () => {
     const fetchUserScores = async () => {
       try {
         setLoadingScores(true);
+        const streak = await getDailyStreak(user.id);
+        setDailyStreak(streak);
+
         const { data, error } = await supabase
           .from("scores")
           .select("*")
@@ -121,6 +126,14 @@ const Profile = () => {
                 <Calendar size={13} />
                 <span>Joined {formatDate(user.created_at)}</span>
               </div>
+              {dailyStreak > 0 && (
+                <div className="mt-3 flex justify-center">
+                  <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+                    <Flame size={14} />
+                    {dailyStreak} Day Streak
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

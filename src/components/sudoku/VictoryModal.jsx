@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatTime } from '../../utils/sudokuHelpers';
 
-const VictoryModal = ({ isOpen, time, difficulty, onPlayAgain, onBackToMenu, isDaily, user, scoreSubmitted, isSubmitting, onSaveScore }) => {
+const VictoryModal = ({ isOpen, time, difficulty, onPlayAgain, onBackToMenu, isDaily, dailyStreak, user, scoreSubmitted, isSubmitting, onSaveScore }) => {
   if (!isOpen) return null;
 
   return (
@@ -19,6 +19,14 @@ const VictoryModal = ({ isOpen, time, difficulty, onPlayAgain, onBackToMenu, isD
             : `You completed the ${difficulty.toLowerCase()} Sudoku puzzle!`}
         </p>
         
+        {isDaily && dailyStreak > 0 && (
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-4 py-1.5 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+              🔥 {dailyStreak} Day Streak
+            </div>
+          </div>
+        )}
+
         <div className="bg-[#0f172a] rounded-xl p-4 mb-6 border border-white/5">
           <div className="text-sm text-gray-500 uppercase tracking-widest mb-1">Time</div>
           <div className="text-3xl font-mono text-emerald-400">{formatTime(time)}</div>
