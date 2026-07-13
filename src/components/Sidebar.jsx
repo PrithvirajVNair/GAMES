@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Ellipsis, Flag, MapPinned, Home, Gamepad2, Settings, LogIn, LogOut, User, UserPlus, Trophy } from "lucide-react";
+import { Ellipsis, Flag, MapPinned, Home, Gamepad2, Settings, LogIn, LogOut, User, UserPlus, Trophy, Grid3x3 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
@@ -38,6 +38,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       path: "/logo-quiz",
       status: "playable",
     },
+    {
+      id: "sudoku",
+      title: "Sudoku",
+      path: "/sudoku",
+      status: "playable",
+    },
   ];
 
   const iconFor = (id) => {
@@ -46,6 +52,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (id === "country-shape-quiz") return <MapPinned />;
     if (id === "logo-quiz") return <Gamepad2 />;
     if (id === "leaderboard") return <Trophy />;
+    if (id === "sudoku") return <Grid3x3 />;
+
     return <Ellipsis />;
   };
 
