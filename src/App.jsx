@@ -17,7 +17,43 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context/AuthContext";
 
+import React, { useEffect } from "react";
+
 function App() {
+  useEffect(() => {
+    // Only disable inspect/right-click in production to allow developer testing locally
+    if (import.meta.env.PROD) {
+      const handleContextMenu = (e) => e.preventDefault();
+      
+      const handleKeyDown = (e) => {
+        // F12
+        if (e.keyCode === 123) {
+          e.preventDefault();
+        }
+        // Ctrl+Shift+I (Inspect), Ctrl+Shift+J (Console), Ctrl+Shift+C (Element selector)
+        if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+          e.preventDefault();
+        }
+        // Cmd+Opt+I / Cmd+Opt+J (macOS)
+        if ((e.metaKey || e.ctrlKey) && e.altKey && (e.keyCode === 73 || e.keyCode === 74)) {
+          e.preventDefault();
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.keyCode === 85) {
+          e.preventDefault();
+        }
+      };
+
+      document.addEventListener("contextmenu", handleContextMenu);
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("contextmenu", handleContextMenu);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <Routes>
