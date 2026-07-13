@@ -25,6 +25,7 @@ import {
   loadInProgress,
   saveInProgress,
   clearInProgress,
+  getDailyStreak,
 } from "../services/dailyChallengeService";
 import { toast } from "react-toastify";
 import AuthModal from "../components/AuthModal";
@@ -54,6 +55,7 @@ const Sudoku = () => {
   const [dailyStatus, setDailyStatus] = useState("loading"); // "loading", "completed", "available"
   const [dailyCompletedResult, setDailyCompletedResult] = useState(null);
   const [dailyInProgress, setDailyInProgress] = useState(null);
+  const [dailyStreak, setDailyStreak] = useState(0);
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
@@ -217,6 +219,9 @@ const Sudoku = () => {
 
     try {
       const completed = await hasCompletedToday(seed, uid);
+      const streak = await getDailyStreak(uid);
+      setDailyStreak(streak);
+      
       if (completed) {
         const result = await getCompletedResult(seed, uid);
         setDailyCompletedResult(result);
@@ -261,6 +266,7 @@ const Sudoku = () => {
           mistakes: 0, // not currently tracked in-game
         });
         clearInProgress(seed, uid);
+        setDailyStreak(prev => prev + 1);
       }
     }
   }, [
@@ -855,11 +861,16 @@ const Sudoku = () => {
                     >
                       ✅
                     </div>
-                    <h1 className="text-[clamp(1.5rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#34d399,#10b981)] bg-clip-text text-transparent tracking-tight leading-[1.1]">
+                    <h1 className="text-[clamp(1.5rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#34d399,#10b981)] bg-clip-text text-transparent tracking-tight leading-[1.1] mb-1">
                       Challenge
                       <br />
                       Complete!
                     </h1>
+                    {dailyStreak > 0 && (
+                      <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-[0.8rem] sm:text-[0.85rem] font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)] mb-1">
+                        🔥 {dailyStreak} Day Streak
+                      </div>
+                    )}
                     <p className="text-[0.9rem] text-white/70 max-w-[280px] mb-2">
                       You've already conquered today's puzzle. Come back
                       tomorrow for a new challenge!
@@ -905,10 +916,15 @@ const Sudoku = () => {
                     >
                       📅
                     </div>
-                    <h1 className="text-[clamp(1.5rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#f472b6,#fb7185,#fda4af)] bg-clip-text text-transparent tracking-tight">
+                    <h1 className="text-[clamp(1.5rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#f472b6,#fb7185,#fda4af)] bg-clip-text text-transparent tracking-tight mb-1">
                       Daily Challenge
                     </h1>
-                    <p className="text-[0.85rem] sm:text-[0.9rem] text-white/50 leading-relaxed max-w-[280px]">
+                    {dailyStreak > 0 && (
+                      <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-[0.8rem] sm:text-[0.85rem] font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)] mb-1">
+                        🔥 {dailyStreak} Day Streak
+                      </div>
+                    )}
+                    <p className="text-[0.85rem] sm:text-[0.9rem] text-white/50 leading-relaxed max-w-[280px] mb-1 sm:mb-2">
                       Everyone plays the same Medium Sudoku. A new puzzle
                       unlocks every day!
                     </p>
@@ -1060,6 +1076,7 @@ const Sudoku = () => {
         time={seconds}
         difficulty={difficulty}
         isDaily={boardMode === "daily"}
+        dailyStreak={dailyStreak}
         user={user}
         scoreSubmitted={scoreSubmitted}
         isSubmitting={isSubmitting}

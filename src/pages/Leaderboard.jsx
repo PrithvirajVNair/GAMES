@@ -83,6 +83,7 @@ const Leaderboard = () => {
           time_ms: d.timeMs,
           created_at: d.date,
           user_id: d.userId,
+          streak: d.streak,
           profiles: { username: d.username }
         }));
         setScores(mappedData);
@@ -444,6 +445,11 @@ const Leaderboard = () => {
                             >
                               {username}
                             </span>
+                            {score.streak > 0 && activeGame === 'sudoku' && (
+                              <span className="flex items-center gap-0.5 text-orange-400 text-[0.65rem] sm:text-[0.7rem] font-bold flex-shrink-0" title={`${score.streak} Day Streak`}>
+                                🔥 {score.streak}
+                              </span>
+                            )}
                             {isCurrentUser && (
                               <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[0.58rem] sm:text-[0.62rem] px-1.5 py-0.5 rounded font-black uppercase tracking-wider flex-shrink-0">
                                 You
