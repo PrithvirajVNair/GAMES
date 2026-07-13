@@ -28,7 +28,10 @@ const Profile = () => {
           .order("created_at", { ascending: false });
 
         if (error) {
-          if (error.code === "PGRST116" || error.message.includes("does not exist")) {
+          if (
+            error.code === "PGRST116" ||
+            error.message.includes("does not exist")
+          ) {
             setScores([]);
           } else {
             console.error("Error fetching user scores:", error.message);
@@ -68,8 +71,14 @@ const Profile = () => {
     <>
       <div className="min-h-screen bg-[linear-gradient(135deg,#0a0f1e_0%,#0f1929_50%,#0d1520_100%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
         {/* Decorative Orbs */}
-        <div className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]" style={{ left: "20%", top: "20%" }} />
-        <div className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]" style={{ left: "55%", top: "60%" }} />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]"
+          style={{ left: "20%", top: "20%" }}
+        />
+        <div
+          className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]"
+          style={{ left: "55%", top: "60%" }}
+        />
 
         {/* Sidebar Trigger */}
         <button
@@ -105,7 +114,9 @@ const Profile = () => {
               {user.username ? user.username[0] : "?"}
             </div>
             <div className="text-center">
-              <h2 className="text-xl font-extrabold text-white tracking-tight">{user.username}</h2>
+              <h2 className="text-xl font-extrabold text-white tracking-tight">
+                {user.username}
+              </h2>
               <div className="flex items-center justify-center gap-1.5 text-white/40 text-[0.76rem] mt-1">
                 <Calendar size={13} />
                 <span>Joined {formatDate(user.created_at)}</span>
@@ -120,10 +131,13 @@ const Profile = () => {
             </h3>
 
             {loadingScores ? (
-              <div className="text-center py-6 text-[0.82rem] text-white/40">Loading scores...</div>
+              <div className="text-center py-6 text-[0.82rem] text-white/40">
+                Loading scores...
+              </div>
             ) : scores.length === 0 ? (
               <div className="text-center py-8 bg-white/[0.01] border border-dashed border-white/6 text-[0.82rem] text-white/35">
-                No submitted leaderboard scores yet. Play a game and submit your score to appear here!
+                No submitted leaderboard scores yet. Play a game and submit your
+                score to appear here!
               </div>
             ) : (
               <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
