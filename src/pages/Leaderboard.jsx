@@ -216,7 +216,7 @@ const Leaderboard = () => {
               onClick={() => setActiveGame('flag')}
               className={`flex-1 py-2 px-3 text-[0.8rem] sm:text-[0.85rem] font-bold rounded-lg transition-all duration-200 ${
                 activeGame === 'flag'
-                  ? 'bg-[linear-gradient(135deg,#0d9488,#0284c7)] text-white shadow-[0_4px_12px_rgba(13,148,136,0.3)]'
+                  ? 'bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
                   : 'text-white/50 hover:bg-white/5 hover:text-white/80'
               }`}
             >
