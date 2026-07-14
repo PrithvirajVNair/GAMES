@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Flag, MapPinned, Gamepad2, Grid3x3 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import countries from "../utils/countries";
@@ -228,6 +228,21 @@ const Home = () => {
               🏆 View Global Leaderboards
             </button>
           </div>
+
+          {/* Footer */}
+          <footer className="w-full max-w-[1100px] border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/40">
+            <div>
+              &copy; {new Date().getFullYear()} FQz Games. All rights reserved.
+            </div>
+            <div className="flex gap-6">
+              <Link to="/terms" className="hover:text-violet-400 hover:underline transition-colors duration-200">
+                Terms of Service
+              </Link>
+              <Link to="/privacy" className="hover:text-violet-400 hover:underline transition-colors duration-200">
+                Privacy Policy
+              </Link>
+            </div>
+          </footer>
         </div>
       </div>
     </>

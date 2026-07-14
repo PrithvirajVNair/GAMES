@@ -209,6 +209,19 @@ const SignUp = () => {
               </div>
             </div>
 
+            {/* Terms Disclaimer */}
+            <p className="text-[0.7rem] text-center text-white/30 leading-relaxed mt-1">
+              By creating an account, you agree to our{" "}
+              <Link to="/terms" className="text-violet-400/80 hover:text-violet-300 hover:underline">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-violet-400/80 hover:text-violet-300 hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </p>
+
             {/* Submit */}
             <button
               type="submit"
