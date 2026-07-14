@@ -28,56 +28,138 @@ html {
 }
 
 /* ── Font Utilities ── */
-@utility roboto { font-family: "Roboto", sans-serif; }
-@utility mogra { font-family: "Mogra", system-ui; }
-@utility anton { font-family: "Anton", sans-serif; }
-@utility dm-sans { font-family: "DM Sans", sans-serif; }
-@utility inter { font-family: "Inter", sans-serif; }
-@utility bebas-neue { font-family: "Bebas Neue", sans-serif; }
+@utility roboto {
+  font-family: "Roboto", sans-serif;
+}
+@utility mogra {
+  font-family: "Mogra", system-ui;
+}
+@utility anton {
+  font-family: "Anton", sans-serif;
+}
+@utility dm-sans {
+  font-family: "DM Sans", sans-serif;
+}
+@utility inter {
+  font-family: "Inter", sans-serif;
+}
+@utility bebas-neue {
+  font-family: "Bebas Neue", sans-serif;
+}
 
 /* ── Keyframes (must be CSS) ── */
 @keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 @keyframes shake {
-  10%, 90%       { transform: translateX(-2px); }
-  20%, 80%       { transform: translateX(4px); }
-  30%, 50%, 70%  { transform: translateX(-6px); }
-  40%, 60%       { transform: translateX(6px); }
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-6px);
+  }
+  40%,
+  60% {
+    transform: translateX(6px);
+  }
 }
 @keyframes floatY {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 @keyframes floatYSm {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.8); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes pnfTwinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50%      { opacity: 1;   transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 @keyframes spinCompass {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes starAnim {
-  0%   { width: 0; transform: translate3d(0,0,0) rotate(-40deg); opacity: 0; }
-  10%  { width: 30px; opacity: 1; }
-  90%  { opacity: 1; }
-  100% { width: 0; transform: translate3d(-260px,220px,0) rotate(-40deg); opacity: 0; }
+  0% {
+    width: 0;
+    transform: translate3d(0, 0, 0) rotate(-40deg);
+    opacity: 0;
+  }
+  10% {
+    width: 30px;
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    width: 0;
+    transform: translate3d(-260px, 220px, 0) rotate(-40deg);
+    opacity: 0;
+  }
 }
 @media (max-width: 768px) {
   @keyframes starAnim {
-    0%   { width: 0; transform: translate3d(0,0,0) rotate(-40deg); opacity: 0; }
-    10%  { width: 20px; opacity: 1; }
-    90%  { opacity: 1; }
-    100% { width: 0; transform: translate3d(-130px,110px,0) rotate(-40deg); opacity: 0; }
+    0% {
+      width: 0;
+      transform: translate3d(0, 0, 0) rotate(-40deg);
+      opacity: 0;
+    }
+    10% {
+      width: 20px;
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      width: 0;
+      transform: translate3d(-130px, 110px, 0) rotate(-40deg);
+      opacity: 0;
+    }
   }
 }
 
@@ -87,8 +169,13 @@ html {
   left: var(--star-left);
   top: var(--star-top);
   height: 0.8px;
-  background: linear-gradient(90deg, #fff, rgba(167,139,250,0.4), transparent);
-  filter: drop-shadow(0 0 1.5px rgba(255,255,255,0.7));
+  background: linear-gradient(
+    90deg,
+    #fff,
+    rgba(167, 139, 250, 0.4),
+    transparent
+  );
+  filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.7));
   opacity: 0;
   transform: rotate(-40deg);
   animation: starAnim 5s linear infinite;
@@ -101,23 +188,36 @@ html {
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
 /* ── Shake — JS-toggled, needs !important to override focus styles ── */
 .fq-shake {
-  animation: shake 0.45s cubic-bezier(0.36,0.07,0.19,0.97) both;
-  border-color: rgba(239,68,68,0.7) !important;
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+  animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 
 /* ── Animation utilities not covered by Tailwind defaults ── */
-.animate-float     { animation: floatY   3s ease-in-out infinite; }
-.animate-float-sm  { animation: floatYSm 4s ease-in-out infinite; }
-.animate-fade-in-scale { animation: fadeInScale 0.3s ease; }
-.animate-spin-slow { animation: spinCompass 25s linear infinite; }
+.animate-float {
+  animation: floatY 3s ease-in-out infinite;
+}
+.animate-float-sm {
+  animation: floatYSm 4s ease-in-out infinite;
+}
+.animate-fade-in-scale {
+  animation: fadeInScale 0.3s ease;
+}
+.animate-spin-slow {
+  animation: spinCompass 25s linear infinite;
+}
 
 /* ── PNF twinkling stars ── */
 .pnf-star {
@@ -136,45 +236,66 @@ html {
 }
 
 /* ── Custom thin sidebar scrollbar ── */
+.fqz-sidebar-scroll {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+.fqz-sidebar-scroll:hover {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
 .fqz-sidebar-scroll::-webkit-scrollbar {
-  width: 3px;
+  width: 2px;
 }
 .fqz-sidebar-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .fqz-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border-radius: 99px;
 }
+.fqz-sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+}
 .fqz-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 /* ── Legal pages scrollbar ── */
 .legal-scroll {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+.legal-scroll:hover {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
 .legal-scroll::-webkit-scrollbar {
-  width: 2.5px;
-  height: 2.5px;
+  width: 2px;
+  height: 2px;
 }
 .legal-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .legal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   border-radius: 99px;
 }
+.legal-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+}
 .legal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 /* ── Sidebar dropdown accordion transition ── */
 .sidebar-dropdown-wrapper {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms ease, margin-top 300ms ease;
+  transition:
+    grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 250ms ease,
+    margin-top 300ms ease;
   opacity: 0;
 }
 .sidebar-dropdown-wrapper.expanded {
@@ -189,7 +310,10 @@ html {
 
 /* ── Sidebar Mini-Dock Layout for Desktop ── */
 .sidebar-text-label {
-  transition: opacity 200ms ease, width 200ms ease, margin 200ms ease;
+  transition:
+    opacity 200ms ease,
+    width 200ms ease,
+    margin 200ms ease;
   opacity: 1;
   visibility: visible;
   display: inline-block;
