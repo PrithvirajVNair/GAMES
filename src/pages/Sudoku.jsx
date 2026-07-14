@@ -29,6 +29,7 @@ import {
 } from "../services/dailyChallengeService";
 import { toast } from "react-toastify";
 import AuthModal from "../components/AuthModal";
+import { Flame } from "lucide-react";
 
 const Sudoku = () => {
   const { user } = useAuth();
@@ -868,7 +869,8 @@ const Sudoku = () => {
                     </h1>
                     {dailyStreak > 0 && (
                       <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-[0.8rem] sm:text-[0.85rem] font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)] mb-1">
-                        🔥 {dailyStreak} Day Streak
+                        <Flame size={14} className="flex-shrink-0" />
+                        {dailyStreak} Day Streak
                       </div>
                     )}
                     <p className="text-[0.9rem] text-white/70 max-w-[280px] mb-2">
@@ -921,7 +923,8 @@ const Sudoku = () => {
                     </h1>
                     {dailyStreak > 0 && (
                       <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-3 py-1 rounded-full text-[0.8rem] sm:text-[0.85rem] font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)] mb-1">
-                        🔥 {dailyStreak} Day Streak
+                        <Flame size={14} className="flex-shrink-0" />
+                        {dailyStreak} Day Streak
                       </div>
                     )}
                     <p className="text-[0.85rem] sm:text-[0.9rem] text-white/50 leading-relaxed max-w-[280px] mb-1 sm:mb-2">

@@ -1,5 +1,20 @@
 import { useEffect, useState } from "react";
-import { Ellipsis, Flag, MapPinned, Home, Gamepad2, Settings, LogIn, LogOut, User, UserPlus, Trophy, Grid3x3, ChevronDown, AlignJustify } from "lucide-react";
+import {
+  Ellipsis,
+  Flag,
+  MapPinned,
+  Home,
+  Gamepad2,
+  Settings,
+  LogIn,
+  LogOut,
+  User,
+  UserPlus,
+  Trophy,
+  Grid3x3,
+  ChevronDown,
+  AlignJustify,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
@@ -84,7 +99,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     // Find the toggle button on the page and click it to open/toggle the sidebar
     const toggleBtn = Array.from(document.querySelectorAll("button")).find(
       (btn) =>
-        btn.textContent.includes("Games") || btn.textContent.includes("Close")
+        btn.textContent.includes("Games") || btn.textContent.includes("Close"),
     );
     if (toggleBtn) {
       toggleBtn.click();
@@ -159,7 +174,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                   }}
                 >
                   <div className="sidebar-item-inner flex items-center gap-3">
-                    <span className={`text-[1.1rem] flex items-center justify-center flex-shrink-0 ${isActive ? "text-indigo-400" : "text-white/70"}`}>
+                    <span
+                      className={`text-[1.1rem] flex items-center justify-center flex-shrink-0 ${isActive ? "text-indigo-400" : "text-white/70"}`}
+                    >
                       {iconFor(item.id)}
                     </span>
                     <span
@@ -178,17 +195,23 @@ const Sidebar = ({ isOpen, onClose }) => {
             <button
               onClick={() => setGamesExpanded(!gamesExpanded)}
               className={`sidebar-menu-item text-[0.72rem] font-extrabold uppercase tracking-widest mt-4 mb-1 pl-3.5 flex items-center justify-between select-none bg-transparent border-none cursor-pointer w-full text-left outline-none transition-colors duration-200 ${
-                gamesExpanded ? "text-indigo-400" : "text-white/30 hover:text-white/60"
+                gamesExpanded
+                  ? "text-indigo-400"
+                  : "text-white/30 hover:text-white/60"
               }`}
             >
               <div className="sidebar-item-inner flex items-center gap-1.5">
                 <span className="sidebar-text-label flex-shrink-0">🎮</span>
-                <span className="sidebar-text-label whitespace-nowrap">Games</span>
+                <span className="sidebar-text-label whitespace-nowrap">
+                  Games
+                </span>
               </div>
               <ChevronDown
                 size={14}
                 className={`transition-transform duration-200 flex-shrink-0 ${
-                  gamesExpanded ? "rotate-0 text-indigo-400" : "-rotate-90 text-white/55"
+                  gamesExpanded
+                    ? "rotate-0 text-indigo-400"
+                    : "-rotate-90 text-white/55"
                 }`}
               />
             </button>
@@ -223,7 +246,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                       }}
                     >
                       <div className="sidebar-item-inner flex items-center gap-3">
-                        <span className={`text-[1.1rem] flex items-center justify-center flex-shrink-0 ${isActive ? "text-indigo-400" : "text-white/70"}`}>
+                        <span
+                          className={`text-[1.1rem] flex items-center justify-center flex-shrink-0 ${isActive ? "text-indigo-400" : "text-white/70"}`}
+                        >
                           {iconFor(item.id)}
                         </span>
                         <span
@@ -241,25 +266,33 @@ const Sidebar = ({ isOpen, onClose }) => {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Bottom: Auth and Settings */}
-          <div className="mt-auto flex flex-col gap-4">
+        {/* Bottom: Auth and Settings (Fixed, not scrollable) */}
+        <div className="mt-auto flex flex-col gap-4 flex-shrink-0">
             {/* Auth Section */}
             <div className="border-t border-white/8 pt-4 flex flex-col gap-3">
               {user ? (
                 <>
                   {/* Logged In Info */}
-                  <div className={`flex items-center rounded-xl transition-all duration-200 ${
-                    isOpen 
-                      ? "bg-white/[0.02] border border-white/5 justify-start gap-3 px-3 py-1.5" 
-                      : "bg-transparent border-transparent justify-center gap-0 px-0 py-0"
-                  }`}>
+                  <div
+                    className={`flex items-center rounded-xl transition-all duration-200 ${
+                      isOpen
+                        ? "bg-white/[0.02] border border-white/5 justify-start gap-3 px-3 py-1.5"
+                        : "bg-transparent border-transparent justify-center gap-0 px-0 py-0"
+                    }`}
+                  >
                     <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/25 flex items-center justify-center text-violet-400 font-bold uppercase text-[0.9rem] flex-shrink-0">
                       {user.username ? user.username[0] : "?"}
                     </div>
                     <div className="sidebar-text-label flex flex-col truncate">
-                      <span className="text-[0.72rem] text-white/35 font-bold uppercase tracking-wider">Signed In As</span>
-                      <span className="text-[0.85rem] font-extrabold text-white truncate"> {user.username}</span>
+                      <span className="text-[0.72rem] text-white/35 font-bold uppercase tracking-wider">
+                        Signed In As
+                      </span>
+                      <span className="text-[0.85rem] font-extrabold text-white truncate">
+                        {" "}
+                        {user.username}
+                      </span>
                     </div>
                   </div>
 
@@ -275,8 +308,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                         : "border-l-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
                     }`}
                   >
-                    <User size={18} className={`flex-shrink-0 ${location.pathname === "/profile" ? "text-indigo-400" : "text-white/55"}`} />
-                    <span className={`sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap ${location.pathname === "/profile" ? "text-white font-extrabold" : "text-white/70"}`}>
+                    <User
+                      size={18}
+                      className={`flex-shrink-0 ${location.pathname === "/profile" ? "text-indigo-400" : "text-white/55"}`}
+                    />
+                    <span
+                      className={`sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap ${location.pathname === "/profile" ? "text-white font-extrabold" : "text-white/70"}`}
+                    >
                       Profile
                     </span>
                   </button>
@@ -287,7 +325,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                     className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-red-400/80 hover:bg-red-500/10 hover:text-red-400 cursor-pointer transition-all duration-200"
                   >
                     <LogOut size={18} className="flex-shrink-0" />
-                    <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap">Logout</span>
+                    <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap">
+                      Logout
+                    </span>
                   </button>
                 </>
               ) : (
@@ -304,8 +344,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                         : "border-l-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
                     }`}
                   >
-                    <LogIn size={18} className={`flex-shrink-0 ${location.pathname === "/signin" ? "text-indigo-400" : "text-white/55"}`} />
-                    <span className="sidebar-text-label text-[0.88rem] font-bold text-white/70 whitespace-nowrap">Sign In</span>
+                    <LogIn
+                      size={18}
+                      className={`flex-shrink-0 ${location.pathname === "/signin" ? "text-indigo-400" : "text-white/55"}`}
+                    />
+                    <span className="sidebar-text-label text-[0.88rem] font-bold text-white/70 whitespace-nowrap">
+                      Sign In
+                    </span>
                   </button>
                 </>
               )}
@@ -314,21 +359,28 @@ const Sidebar = ({ isOpen, onClose }) => {
             {/* Settings */}
             <div className="border-t border-white/8 pt-4">
               <button
-                onClick={() => { navigate("/settings"); onClose(); }}
+                onClick={() => {
+                  navigate("/settings");
+                  onClose();
+                }}
                 className={`sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 transition-all duration-200 cursor-pointer ${
                   location.pathname === "/settings"
                     ? "border-l-indigo-500 bg-indigo-500/10 text-indigo-400"
                     : "border-l-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
                 }`}
               >
-                <Settings size={18} className={`flex-shrink-0 ${location.pathname === "/settings" ? "text-indigo-400" : "text-white/55"}`} />
-                <span className={`sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap ${location.pathname === "/settings" ? "text-white font-extrabold" : "text-white/70"}`}>
+                <Settings
+                  size={18}
+                  className={`flex-shrink-0 ${location.pathname === "/settings" ? "text-indigo-400" : "text-white/55"}`}
+                />
+                <span
+                  className={`sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap ${location.pathname === "/settings" ? "text-white font-extrabold" : "text-white/70"}`}
+                >
                   Settings
                 </span>
               </button>
             </div>
           </div>
-        </div>
       </aside>
 
       {/* Backdrop */}

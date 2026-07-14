@@ -9,6 +9,7 @@ import {
   Calendar,
   ArrowLeft,
   RefreshCw,
+  Flame,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { getLeaderboard } from "../services/leaderboardService";
@@ -447,7 +448,7 @@ const Leaderboard = () => {
                             </span>
                             {score.streak > 0 && activeGame === 'sudoku' && (
                               <span className="flex items-center gap-0.5 text-orange-400 text-[0.65rem] sm:text-[0.7rem] font-bold flex-shrink-0" title={`${score.streak} Day Streak`}>
-                                🔥 {score.streak}
+                                <Flame size={12} className="flex-shrink-0" /> {score.streak}
                               </span>
                             )}
                             {isCurrentUser && (

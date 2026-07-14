@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatTime } from '../../utils/sudokuHelpers';
+import { Flame } from 'lucide-react';
 
 const VictoryModal = ({ isOpen, time, difficulty, onPlayAgain, onBackToMenu, isDaily, dailyStreak, user, scoreSubmitted, isSubmitting, onSaveScore }) => {
   if (!isOpen) return null;
@@ -22,7 +23,8 @@ const VictoryModal = ({ isOpen, time, difficulty, onPlayAgain, onBackToMenu, isD
         {isDaily && dailyStreak > 0 && (
           <div className="flex justify-center mb-6">
             <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/30 text-orange-400 px-4 py-1.5 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(249,115,22,0.2)]">
-              🔥 {dailyStreak} Day Streak
+              <Flame size={14} className="flex-shrink-0" />
+              {dailyStreak} Day Streak
             </div>
           </div>
         )}
