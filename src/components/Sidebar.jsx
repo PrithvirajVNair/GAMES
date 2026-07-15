@@ -9,12 +9,12 @@ import {
   LogIn,
   LogOut,
   User,
-  UserPlus,
   Trophy,
   Grid3x3,
   ChevronDown,
   AlignJustify,
   Type,
+  Megaphone,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -23,8 +23,9 @@ import { toast } from "react-toastify";
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, session, signOut } = useAuth();
   const [gamesExpanded, setGamesExpanded] = useState(true);
+  const isAdmin = session?.user?.email === "pals234.pvr@gmail.com";
 
   const mainItems = [
     { id: "home", title: "Main Menu", path: "/", status: "playable" },
@@ -303,6 +304,25 @@ const Sidebar = ({ isOpen, onClose }) => {
                       </span>
                     </div>
                   </div>
+
+                  {/* Admin Announcements Link */}
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        navigate("/", { state: { openAdminModal: true } });
+                        onClose();
+                      }}
+                      className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-indigo-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
+                    >
+                      <Megaphone
+                        size={18}
+                        className="flex-shrink-0 text-indigo-400"
+                      />
+                      <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
+                        Announcements
+                      </span>
+                    </button>
+                  )}
 
                   {/* Profile Link */}
                   <button
