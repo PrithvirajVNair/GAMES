@@ -35,7 +35,7 @@ import DailyCompletionScreen from "../components/hangman/DailyCompletionScreen";
 // UNLIMITED MODE — completely unchanged from original implementation
 // ─────────────────────────────────────────────────────────────────────
 const UnlimitedGame = ({ onGoHome }) => {
-  const { muted, playCorrect, playWrong, playWin, playLose, toggleMute } = useSound();
+  const { muted, playCorrect, playWrong, playWin, playLose, playHint, playSkip, toggleMute } = useSound();
   const { stats, recordWin, recordLoss, resetStats } = useStats();
 
   const handleWin = useCallback(() => { recordWin(); playWin(); }, [recordWin, playWin]);
@@ -45,8 +45,19 @@ const UnlimitedGame = ({ onGoHome }) => {
     word, hint, difficulty, category,
     guessedLetters, wrongGuesses, maxWrong,
     gameStatus, hintUsed,
-    guessLetter, newGame, useHint,
+    guessLetter, newGame: originalNewGame,
+    useHint: originalUseHint,
   } = useHangmanGame({ onWin: handleWin, onLose: handleLose });
+
+  const newGame = useCallback(() => {
+    originalNewGame();
+    playSkip();
+  }, [originalNewGame, playSkip]);
+
+  const useHint = useCallback(() => {
+    originalUseHint();
+    playHint();
+  }, [originalUseHint, playHint]);
 
   const handleGuess = useCallback(
     (letter) => {
@@ -150,7 +161,7 @@ const UnlimitedGame = ({ onGoHome }) => {
 // DAILY MODE
 // ─────────────────────────────────────────────────────────────────────
 const DailyGame = ({ onGoHome, onPlayUnlimited }) => {
-  const { muted, playCorrect, playWrong, playWin, playLose, toggleMute } = useSound();
+  const { muted, playCorrect, playWrong, playWin, playLose, playHint, toggleMute } = useSound();
   const { stats: dailyStats, recordDailyWin, recordDailyLoss } = useDailyStats();
 
   const handleWin = useCallback(() => {
@@ -169,8 +180,13 @@ const DailyGame = ({ onGoHome, onPlayUnlimited }) => {
     guessedLetters, wrongGuesses, maxWrong,
     gameStatus, hintUsed,
     gameCompleted, gameWon,
-    guessLetter, useHint,
+    guessLetter, useHint: originalUseHint,
   } = useDailyGame({ onWin: handleWin, onLose: handleLose });
+
+  const useHint = useCallback(() => {
+    originalUseHint();
+    playHint();
+  }, [originalUseHint, playHint]);
 
   const handleGuess = useCallback(
     (letter) => {
