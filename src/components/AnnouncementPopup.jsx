@@ -63,7 +63,7 @@ const AnnouncementPopup = () => {
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.9, y: 30, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className={`relative w-full max-w-[460px] bg-[rgba(10,15,30,0.85)] border p-8 rounded-2xl backdrop-blur-[20px] z-10 flex flex-col gap-6 text-center transform transition-all duration-300 max-sm:p-6 ${
+            className={`relative w-full max-w-[460px] bg-[rgba(10,15,30,0.85)] border p-8 backdrop-blur-[20px] z-10 flex flex-col gap-6 text-center transform transition-all duration-300 max-sm:p-6 ${
               isGameType
                 ? "border-violet-500/30 shadow-[0_0_50px_rgba(139,92,246,0.2)]"
                 : "border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)]"
@@ -113,7 +113,7 @@ const AnnouncementPopup = () => {
             {/* Action button */}
             <button
               onClick={handleDismiss}
-              className={`w-full py-3.5 text-[0.9rem] font-black border-none cursor-pointer rounded-xl text-white transition-all duration-200 hover:-translate-y-px active:scale-[0.98] ${
+              className={`w-full py-3.5 text-[0.9rem] font-black border-none cursor-pointer text-white transition-all duration-200 hover:-translate-y-px active:scale-[0.98] ${
                 isGameType
                   ? "bg-[linear-gradient(135deg,#8b5cf6,#7c3aed)] shadow-[0_4px_18px_rgba(139,92,246,0.3)] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
                   : "bg-[linear-gradient(135deg,#f59e0b,#d97706)] shadow-[0_4px_18px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_24px_rgba(245,158,11,0.45)]"
