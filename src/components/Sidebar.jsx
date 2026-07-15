@@ -14,6 +14,7 @@ import {
   Grid3x3,
   ChevronDown,
   AlignJustify,
+  Type,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -60,6 +61,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       path: "/sudoku",
       status: "playable",
     },
+    {
+      id: "hangman",
+      title: "Hangman",
+      path: "/hangman",
+      status: "playable",
+    },
   ];
 
   const iconFor = (id) => {
@@ -69,6 +76,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     if (id === "logo-quiz") return <Gamepad2 />;
     if (id === "leaderboard") return <Trophy />;
     if (id === "sudoku") return <Grid3x3 />;
+    if (id === "hangman") return <Type />;
 
     return <Ellipsis />;
   };

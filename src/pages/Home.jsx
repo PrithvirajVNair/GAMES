@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Flag, MapPinned, Gamepad2, Grid3x3 } from "lucide-react";
+import { Flag, MapPinned, Gamepad2, Grid3x3, Type } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import countries from "../utils/countries";
 import logos from "../utils/logos";
@@ -215,6 +215,30 @@ const Home = () => {
                 onClick={() => navigate("/sudoku")}
               >
                 Play Sudoku ➔
+              </button>
+            </div>
+
+            {/* Hangman Card */}
+            <div className="bg-white/[0.03] border border-white/6 p-9 flex flex-col gap-6 relative cursor-default overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-2 hover:bg-white/5 hover:border-emerald-500/30 hover:shadow-[0_20px_40px_rgba(52,211,153,0.15)] max-sm:p-7">
+              <div className="w-[54px] h-[54px] flex items-center justify-center bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                <Type size={24} />
+              </div>
+              <div className="flex flex-col gap-2 flex-1">
+                <span className="text-[0.72rem] font-bold tracking-[0.5px] uppercase text-emerald-400">
+                  Word Game
+                </span>
+                <h2 className="text-[1.4rem] font-extrabold m-0 text-white">
+                  Hangman
+                </h2>
+                <p className="text-[0.88rem] text-white/45 leading-[1.5] m-0">
+                  Guess the hidden word letter by letter before the hangman is complete. 100+ words across 6 categories!
+                </p>
+              </div>
+              <button
+                className="w-full py-[0.85rem] text-[0.9rem] font-bold border-none cursor-pointer flex items-center justify-center gap-2 bg-[linear-gradient(135deg,#10b981,#059669)] text-white shadow-[0_4px_18px_rgba(16,185,129,0.2)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(16,185,129,0.4)] hover:-translate-y-px"
+                onClick={() => navigate("/hangman")}
+              >
+                Play Hangman ➔
               </button>
             </div>
           </div>
