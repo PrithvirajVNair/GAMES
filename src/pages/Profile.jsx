@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { User, Award, Calendar, ArrowLeft, Flame } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { getDailyStreak } from "../services/dailyChallengeService";
+import { BADGE_CONFIG, UserBadgeIcon } from "../utils/badgeConfig";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -119,9 +120,21 @@ const Profile = () => {
               {user.username ? user.username[0] : "?"}
             </div>
             <div className="text-center">
-              <h2 className="text-xl font-extrabold text-white tracking-tight">
+              <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
                 {user.username}
               </h2>
+              
+              {user.badge && BADGE_CONFIG[user.badge] && (
+                <div className="flex items-center justify-center mt-1 mb-2">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[0.75rem] font-bold border ${BADGE_CONFIG[user.badge].bgClass}`}>
+                    <UserBadgeIcon badge={user.badge} size={14} />
+                    <span className={BADGE_CONFIG[user.badge].gradientTextClass}>
+                      {BADGE_CONFIG[user.badge].label}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center justify-center gap-1.5 text-white/40 text-[0.76rem] mt-1">
                 <Calendar size={13} />
                 <span>Joined {formatDate(user.created_at)}</span>

@@ -15,9 +15,11 @@ import {
   AlignJustify,
   Type,
   Megaphone,
+  Users,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { UserBadgeIcon } from "../utils/badgeConfig";
 import { toast } from "react-toastify";
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -294,34 +296,53 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/25 flex items-center justify-center text-violet-400 font-bold uppercase text-[0.9rem] flex-shrink-0">
                       {user.username ? user.username[0] : "?"}
                     </div>
-                    <div className="sidebar-text-label flex flex-col truncate">
+                    <div className="sidebar-text-label flex flex-col min-w-0">
                       <span className="text-[0.72rem] text-white/35 font-bold uppercase tracking-wider">
                         Signed In As
                       </span>
-                      <span className="text-[0.85rem] font-extrabold text-white truncate">
-                        {" "}
-                        {user.username}
-                      </span>
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className="text-[0.85rem] font-extrabold text-white truncate">
+                          {user.username}
+                        </span>
+                        <UserBadgeIcon badge={user.badge} size={14} />
+                      </div>
                     </div>
                   </div>
 
                   {/* Admin Announcements Link */}
                   {isAdmin && (
-                    <button
-                      onClick={() => {
-                        navigate("/", { state: { openAdminModal: true } });
-                        onClose();
-                      }}
-                      className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-indigo-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
-                    >
-                      <Megaphone
-                        size={18}
-                        className="flex-shrink-0 text-indigo-400"
-                      />
-                      <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
-                        Announcements
-                      </span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          navigate("/", { state: { openAdminModal: true } });
+                          onClose();
+                        }}
+                        className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-indigo-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
+                      >
+                        <Megaphone
+                          size={18}
+                          className="flex-shrink-0 text-indigo-400"
+                        />
+                        <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
+                          Announcements
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/", { state: { openAdminUsersModal: true } });
+                          onClose();
+                        }}
+                        className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-pink-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
+                      >
+                        <Users
+                          size={18}
+                          className="flex-shrink-0 text-pink-400"
+                        />
+                        <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
+                          Manage Users
+                        </span>
+                      </button>
+                    </>
                   )}
 
                   {/* Profile Link */}
