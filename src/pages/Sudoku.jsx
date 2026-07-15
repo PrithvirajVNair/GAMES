@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { motion } from "framer-motion";
 import { generatePuzzle } from "../utils/sudokuGenerator";
 import { findConflicts } from "../utils/sudokuValidator";
 import { saveGame, loadGame, clearGame } from "../utils/sudokuStorage";
@@ -611,95 +612,141 @@ const Sudoku = () => {
         {!started ? (
           <>
             {gameMode === null && (
-              /* Mode Selection Screen */
-              <div className="text-center flex flex-col items-center gap-4 sm:gap-5 w-full animate-fade-in-scale relative pt-2">
-                <div
-                  className="text-[3rem] sm:text-[4rem] mb-1 sm:mb-2 animate-float"
-                  style={{
-                    filter: "drop-shadow(0 0 25px rgba(99,102,241,0.45))",
-                  }}
+              /* ── Mode Selection Screen — Hangman-style card grid ── */
+              <div className="flex flex-col items-center gap-6 w-full">
+                {/* Header */}
+                <motion.div
+                  initial={{ opacity: 0, y: -16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  className="text-center flex flex-col items-center gap-2"
                 >
-                  🧩
-                </div>
-                <h1 className="text-[clamp(1.5rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#a78bfa,#60a5fa,#f472b6)] bg-clip-text text-transparent tracking-tight mb-1">
-                  Sudoku
-                </h1>
-                <p className="text-[0.8rem] sm:text-[0.9rem] text-white/50 leading-relaxed max-w-[380px] mb-2">
-                  Select a game mode to test your logic skills.
-                </p>
+                  <div
+                    className="text-[3rem] sm:text-[3.5rem] animate-float"
+                    style={{ filter: "drop-shadow(0 0 25px rgba(99,102,241,0.45))" }}
+                  >
+                    🧩
+                  </div>
+                  <h1 className="text-[clamp(1.6rem,5vw,2.2rem)] font-extrabold bg-[linear-gradient(90deg,#a78bfa,#60a5fa,#f472b6)] bg-clip-text text-transparent tracking-tight">
+                    Sudoku
+                  </h1>
+                  <p className="text-[0.8rem] text-white/45 font-medium">
+                    Choose your mode to begin
+                  </p>
+                </motion.div>
 
-                <div className="flex flex-col gap-3 w-full">
-                  <button
-                    className="w-full text-left p-3.5 sm:p-4 bg-white/[0.03] border border-white/8 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200 cursor-pointer active:scale-[0.98] group flex items-center justify-between"
+                {/* Mode Cards */}
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
+                >
+                  {/* Daily Challenge Card */}
+                  <motion.button
+                    variants={{ hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 220, damping: 22 } } }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleSelectDailyMode()}
+                    className="group relative flex flex-col gap-4 p-5
+                      bg-gradient-to-br from-amber-500/10 to-orange-500/5
+                      border border-amber-400/20 hover:border-amber-400/50
+                      hover:shadow-[0_20px_40px_rgba(251,191,36,0.12)]
+                      transition-all duration-300 text-left cursor-pointer outline-none
+                      focus-visible:ring-2 focus-visible:ring-amber-400"
+                    aria-label="Play Daily Challenge"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">📅</span>
-                      <div className="flex flex-col text-left">
-                        <strong className="text-sm font-bold text-white group-hover:text-violet-300 transition-colors">
-                          Daily Challenge
-                        </strong>
-                        <span className="text-xs text-white/45">
-                          One special puzzle every day
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-white/30 group-hover:text-white/60 transition-colors">
-                      ➔
+                    {/* Once-daily badge */}
+                    <span className="absolute top-3 right-3 text-[0.55rem] font-extrabold uppercase tracking-widest text-amber-400/70 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5">
+                      Once Daily
                     </span>
-                  </button>
-                  <button
-                    className="w-full text-left p-3.5 sm:p-4 bg-white/[0.03] border border-white/8 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200 cursor-pointer active:scale-[0.98] group flex items-center justify-between"
-                    onClick={() => setGameMode("unlimited")}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">♾️</span>
-                      <div className="flex flex-col text-left">
-                        <strong className="text-sm font-bold text-white group-hover:text-violet-300 transition-colors">
-                          Unlimited Mode
-                        </strong>
-                        <span className="text-xs text-white/45">
-                          Play custom puzzles anytime
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-white/30 group-hover:text-white/60 transition-colors">
-                      ➔
-                    </span>
-                  </button>
-                </div>
 
-                <div className="flex flex-col gap-2 sm:gap-3 w-full text-left mt-2">
-                  {[
-                    {
-                      icon: "✏️",
-                      title: "Pencil Notes",
-                      desc: "Jot down numbers inside cells to keep track of candidates.",
-                    },
-                    {
-                      icon: "↩️",
-                      title: "Full Undo & Hints",
-                      desc: "Step backwards using Undo, or get a Hint to place correct numbers.",
-                    },
-                  ].map((f, i) => (
-                    <div
-                      key={i}
-                      className="flex gap-2.5 sm:gap-3 bg-white/[0.02] border border-white/6 p-2.5 sm:p-3 px-3 sm:px-4 items-center"
-                    >
-                      <span className="text-[1.1rem] sm:text-[1.3rem]">
-                        {f.icon}
+                    {/* Icon */}
+                    <div className="w-11 h-11 bg-amber-400/15 border border-amber-400/25 flex items-center justify-center text-xl">
+                      📅
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[0.62rem] font-extrabold uppercase tracking-widest text-amber-400">
+                        Daily Challenge
                       </span>
-                      <div className="flex flex-col gap-[0.1rem] sm:gap-[0.15rem]">
-                        <strong className="text-[0.78rem] sm:text-[0.85rem] font-bold text-white">
-                          {f.title}
-                        </strong>
-                        <span className="text-[0.68rem] sm:text-[0.74rem] text-white/45 leading-[1.3] sm:leading-[1.4]">
-                          {f.desc}
-                        </span>
+                      <h2 className="text-base font-extrabold text-white">
+                        Today's Puzzle
+                      </h2>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        One special Sudoku every day. Same puzzle for everyone.
+                      </p>
+                    </div>
+
+                    <div className="mt-auto flex items-center gap-1.5 text-[0.68rem] font-semibold text-amber-300/60">
+                      <span>🗓</span>
+                      <span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                    </div>
+                  </motion.button>
+
+                  {/* Unlimited Card */}
+                  <motion.button
+                    variants={{ hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 220, damping: 22 } } }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setGameMode("unlimited")}
+                    className="group flex flex-col gap-4 p-5
+                      bg-gradient-to-br from-indigo-500/10 to-violet-500/5
+                      border border-indigo-500/20 hover:border-indigo-400/50
+                      hover:shadow-[0_20px_40px_rgba(99,102,241,0.12)]
+                      transition-all duration-300 text-left cursor-pointer outline-none
+                      focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    aria-label="Play Unlimited Mode"
+                  >
+                    {/* Icon */}
+                    <div className="w-11 h-11 bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-xl">
+                      ∞
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[0.62rem] font-extrabold uppercase tracking-widest text-indigo-400">
+                        Unlimited Mode
+                      </span>
+                      <h2 className="text-base font-extrabold text-white">
+                        Play Freely
+                      </h2>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Custom puzzles across four difficulty levels, any time.
+                      </p>
+                    </div>
+
+                    <div className="mt-auto flex items-center gap-1.5 text-[0.68rem] font-semibold text-indigo-300/60">
+                      <span>🎯</span>
+                      <span>Easy · Medium · Hard · Expert</span>
+                    </div>
+                  </motion.button>
+                </motion.div>
+
+                {/* Feature chips */}
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
+                  className="grid grid-cols-2 gap-2.5 w-full"
+                >
+                  {[
+                    { icon: "✏️", title: "Pencil Notes", desc: "Track candidates in each cell" },
+                    { icon: "↩️", title: "Full Undo", desc: "Step back through every move" },
+                    { icon: "💡", title: "Smart Hints", desc: "Up to 5 hints per game" },
+                    { icon: "🔥", title: "Daily Streak", desc: "Keep your streak alive" },
+                  ].map((f) => (
+                    <div
+                      key={f.title}
+                      className="flex items-start gap-2.5 bg-white/[0.02] border border-white/6 p-3"
+                    >
+                      <span className="text-base mt-0.5">{f.icon}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <strong className="text-[0.72rem] font-bold text-white/80">{f.title}</strong>
+                        <span className="text-[0.62rem] text-white/35 leading-snug">{f.desc}</span>
                       </div>
                     </div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
 

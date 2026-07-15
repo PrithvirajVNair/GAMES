@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
 import Sudoku from "./pages/Sudoku";
+import Hangman from "./pages/Hangman";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ToastContainer } from "react-toastify";
@@ -70,6 +71,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/sudoku" element={<Sudoku />} />
+        <Route path="/hangman" element={<Hangman />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="*" element={<PNF />} />
