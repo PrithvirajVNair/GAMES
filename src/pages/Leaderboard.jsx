@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import {
   Award,
   Trophy,
-  Timer,
-  Calendar,
   ArrowLeft,
   RefreshCw,
   Flame,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { getLeaderboard } from "../services/leaderboardService";
-import { LEADERBOARD_MODES } from "../utils/leaderboardConstants";
+import { UserBadgeIcon } from "../utils/badgeConfig";
 
 const getTodaySeed = () => {
   const d = new Date();
@@ -43,7 +41,8 @@ const Leaderboard = () => {
             created_at,
             user_id,
             profiles:user_id (
-              username
+              username,
+              badge
             )
           `);
 
@@ -85,7 +84,7 @@ const Leaderboard = () => {
           created_at: d.date,
           user_id: d.userId,
           streak: d.streak,
-          profiles: { username: d.username }
+          profiles: { username: d.username, badge: d.badge }
         }));
         setScores(mappedData);
       }
@@ -103,7 +102,12 @@ const Leaderboard = () => {
       title = sudokuSubMode === "daily" ? "Daily Sudoku Leaderboard" : "Unlimited Sudoku Leaderboard";
     }
     document.title = `${title} | FQz Games`;
-    fetchLeaderboard();
+    
+    const timer = setTimeout(() => {
+      fetchLeaderboard();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeGame, sudokuSubMode]);
 
   const formatTime = (s) => {
@@ -446,6 +450,7 @@ const Leaderboard = () => {
                             >
                               {username}
                             </span>
+                            <UserBadgeIcon badge={score.profiles?.badge} size={13} />
                             {score.streak > 0 && activeGame === 'sudoku' && (
                               <span className="flex items-center gap-0.5 text-orange-400 text-[0.65rem] sm:text-[0.7rem] font-bold flex-shrink-0" title={`${score.streak} Day Streak`}>
                                 <Flame size={12} className="flex-shrink-0" /> {score.streak}

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { Flag, MapPinned, Gamepad2, Grid3x3, Type, Megaphone } from "lucide-react";
+import { Flag, MapPinned, Gamepad2, Grid3x3, Type, Megaphone, Users } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import countries from "../utils/countries";
 import { useAuth } from "../context/AuthContext";
 import AnnouncementPopup from "../components/AnnouncementPopup";
 import AdminAnnouncementModal from "../components/AdminAnnouncementModal";
+import AdminUsersModal from "../components/AdminUsersModal";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -13,12 +14,20 @@ const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { session } = useAuth();
   const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [adminUsersModalOpen, setAdminUsersModalOpen] = useState(false);
   const isAdmin = session?.user?.email === "pals234.pvr@gmail.com";
 
   useEffect(() => {
     if (location.state?.openAdminModal && isAdmin) {
       const timer = setTimeout(() => {
         setAdminModalOpen(true);
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    if (location.state?.openAdminUsersModal && isAdmin) {
+      const timer = setTimeout(() => {
+        setAdminUsersModalOpen(true);
         navigate(location.pathname, { replace: true, state: {} });
       }, 0);
       return () => clearTimeout(timer);
@@ -290,16 +299,29 @@ const Home = () => {
 
       {isAdmin && (
         <>
-          <button
-            onClick={() => setAdminModalOpen(true)}
-            className="fixed bottom-6 right-6 z-[99] bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_24px_rgba(99,102,241,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
-            title="Admin: Manage Announcements"
-          >
-            <Megaphone size={22} />
-          </button>
+          <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3">
+            <button
+              onClick={() => setAdminUsersModalOpen(true)}
+              className="bg-[linear-gradient(135deg,#ec4899,#f43f5e)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(236,72,153,0.4)] hover:shadow-[0_6px_24px_rgba(236,72,153,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
+              title="Admin: Manage Users"
+            >
+              <Users size={22} />
+            </button>
+            <button
+              onClick={() => setAdminModalOpen(true)}
+              className="bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_24px_rgba(99,102,241,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
+              title="Admin: Manage Announcements"
+            >
+              <Megaphone size={22} />
+            </button>
+          </div>
           <AdminAnnouncementModal
             isOpen={adminModalOpen}
             onClose={() => setAdminModalOpen(false)}
+          />
+          <AdminUsersModal
+            isOpen={adminUsersModalOpen}
+            onClose={() => setAdminUsersModalOpen(false)}
           />
         </>
       )}

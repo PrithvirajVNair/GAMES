@@ -99,7 +99,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url')
+        .select('id, username, avatar_url, badge')
         .in('id', userIds);
         
       if (profilesData) {
@@ -117,6 +117,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       id: row.id,
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
+      badge: profilesMap[row.user_id]?.badge || null,
       avatar: profilesMap[row.user_id]?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${row.user_id}`,
       streak: streaksMap[row.user_id] || 0,
       mode: 'daily',
@@ -142,7 +143,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url')
+        .select('id, username, avatar_url, badge')
         .in('id', userIds);
         
       if (profilesData) {
@@ -159,6 +160,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       id: row.user_id,
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
+      badge: profilesMap[row.user_id]?.badge || null,
       avatar: profilesMap[row.user_id]?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${row.user_id}`,
       streak: streaksMap[row.user_id] || 0,
       mode: 'unlimited',
