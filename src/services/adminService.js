@@ -5,10 +5,9 @@ import { supabase } from '../lib/supabase';
  * @returns {Promise<Array>} List of user profiles
  */
 export const getAllUsers = async () => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, username, avatar_url, badge, created_at')
-    .order('created_at', { ascending: false });
+  // Uses admin_get_all_users RPC (security definer) so we can join auth.users
+  // and return each user's email, which is not accessible via the profiles table.
+  const { data, error } = await supabase.rpc('admin_get_all_users');
 
   if (error) {
     throw error;
@@ -34,4 +33,31 @@ export const updateUserBadge = async (userId, badge) => {
     throw error;
   }
   return data;
+};
+
+/**
+ * Bans or unbans a user via the admin_ban_user RPC.
+ * Only callable by the admin account.
+ * @param {string} userId - The ID of the user to ban/unban.
+ * @param {boolean} shouldBan - true to ban, false to unban.
+ */
+export const banUser = async (userId, shouldBan) => {
+  const { error } = await supabase.rpc('admin_ban_user', {
+    target_user_id: userId,
+    should_ban: shouldBan,
+  });
+  if (error) throw error;
+};
+
+/**
+ * Permanently deletes a user and all their data via the admin_delete_user RPC.
+ * This action is IRREVERSIBLE. Cascades to profiles, scores, quiz_sessions.
+ * Only callable by the admin account.
+ * @param {string} userId - The ID of the user to delete.
+ */
+export const deleteUser = async (userId) => {
+  const { error } = await supabase.rpc('admin_delete_user', {
+    target_user_id: userId,
+  });
+  if (error) throw error;
 };

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import { toast } from "react-toastify";
-import { LogIn, Mail, Lock, ArrowLeft } from "lucide-react";
+import { LogIn, Mail, Lock, ArrowLeft, RefreshCw } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const SignIn = () => {
@@ -14,8 +15,10 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  // Set when the user hits the "email not confirmed" error
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null);
+  const [resending, setResending] = useState(false);
 
-  // Redirect to where user came from, or defaults to home
   const from = location.state?.from?.pathname || "/";
 
   const handleSignIn = async (e) => {
@@ -27,6 +30,7 @@ const SignIn = () => {
 
     try {
       setLoading(true);
+      setUnverifiedEmail(null);
       localStorage.setItem(
         "supabase.rememberMe",
         rememberMe ? "true" : "false",
@@ -36,15 +40,35 @@ const SignIn = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
-      let errorMsg = "Incorrect email or password";
-      if (error.message && error.message.includes("Network")) {
-        errorMsg = "Network error";
-      } else if (error.message) {
-        errorMsg = error.message;
+      const msg = error.message || "";
+      // Supabase returns this exact string when email confirmation is enabled
+      if (msg.toLowerCase().includes("email not confirmed")) {
+        setUnverifiedEmail(email);
+      } else {
+        let errorMsg = "Incorrect email or password";
+        if (msg.includes("Network")) errorMsg = "Network error";
+        else if (msg) errorMsg = msg;
+        toast.error(errorMsg, { theme: "dark" });
       }
-      toast.error(errorMsg, { theme: "dark" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!unverifiedEmail || resending) return;
+    try {
+      setResending(true);
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: unverifiedEmail,
+      });
+      if (error) throw error;
+      toast("Verification email resent! Check your inbox.", { theme: "dark" });
+    } catch (err) {
+      toast.error("Failed to resend: " + err.message, { theme: "dark" });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -147,6 +171,27 @@ const SignIn = () => {
                 </span>
               </label>
             </div>
+
+            {/* Email not confirmed warning */}
+            {unverifiedEmail && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 flex flex-col gap-2">
+                <p className="text-[0.8rem] text-amber-300 font-bold">
+                  📧 Email not verified
+                </p>
+                <p className="text-[0.75rem] text-amber-200/70 leading-relaxed">
+                  A verification link was sent to <span className="font-bold">{unverifiedEmail}</span>. Click the link in your inbox to activate your account.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="flex items-center gap-1.5 self-start text-[0.75rem] font-bold text-amber-400 hover:text-amber-300 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw size={12} className={resending ? "animate-spin" : ""} />
+                  {resending ? "Resending..." : "Resend verification email"}
+                </button>
+              </div>
+            )}
 
             {/* Submit */}
             <button
