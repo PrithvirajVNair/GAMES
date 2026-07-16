@@ -99,7 +99,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url, badge')
+        .select('id, username, avatar_url, badge, is_banned')
         .in('id', userIds);
         
       if (profilesData) {
@@ -112,8 +112,8 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       streaksMap = await getDailyStreaksForUsers(userIds);
     }
 
-    // Format to match old structure
-    return scoresData.map(row => ({
+    // Format to match old structure, filtering out banned users
+    return scoresData.filter(row => !profilesMap[row.user_id]?.is_banned).map(row => ({
       id: row.id,
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
@@ -143,7 +143,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
     if (userIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url, badge')
+        .select('id, username, avatar_url, badge, is_banned')
         .in('id', userIds);
         
       if (profilesData) {
@@ -156,7 +156,7 @@ export const getLeaderboard = async ({ mode, seed = null, limit = 100 }) => {
       streaksMap = await getDailyStreaksForUsers(userIds);
     }
 
-    return scoresData.map(row => ({
+    return scoresData.filter(row => !profilesMap[row.user_id]?.is_banned).map(row => ({
       id: row.user_id,
       userId: row.user_id,
       username: profilesMap[row.user_id]?.username || 'Unknown User',
