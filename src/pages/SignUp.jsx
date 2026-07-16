@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import { toast } from "react-toastify";
-import { UserPlus, User, Mail, Lock, ArrowLeft } from "lucide-react";
+import { UserPlus, User, Mail, Lock, ArrowLeft, CheckCircle, RefreshCw } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const SignUp = () => {
@@ -15,41 +16,36 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  // When this is set, we show the "check your inbox" screen instead of the form
+  const [pendingEmail, setPendingEmail] = useState(null);
+  const [resending, setResending] = useState(false);
 
-  // Redirect target
   const from = location.state?.from?.pathname || "/";
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    // 1. Validation
     if (!username || !email || !password || !confirmPassword) {
       toast.error("Please fill in all fields", { theme: "dark" });
       return;
     }
-
     if (username.length < 3) {
       toast.error("Username must be at least 3 characters", { theme: "dark" });
       return;
     }
-
     if (username.length > 20) {
       toast.error("Username must not exceed 20 characters", { theme: "dark" });
       return;
     }
-
-    // Email regex validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error("Please enter a valid email address", { theme: "dark" });
       return;
     }
-
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters", { theme: "dark" });
       return;
     }
-
     if (password !== confirmPassword) {
       toast.error("Passwords do not match", { theme: "dark" });
       return;
@@ -59,23 +55,18 @@ const SignUp = () => {
       setLoading(true);
       const data = await signUp(username, email, password);
       if (data?.session) {
+        // Email confirmation is disabled — user is immediately signed in
         toast("Account created successfully!", { theme: "dark" });
         navigate(from, { replace: true });
       } else {
-        toast(
-          "Account created successfully. Please verify your email before signing in.",
-          {
-            theme: "dark",
-            autoClose: 8000,
-          },
-        );
-        navigate("/signin", { replace: true });
+        // Email confirmation is enabled — show the "check inbox" screen
+        setPendingEmail(email);
       }
     } catch (error) {
       console.error(error);
       let errorMsg = error.message || "Sign up failed. Please try again.";
       if (error.message && error.message.includes("already registered")) {
-        errorMsg = "Email already registered";
+        errorMsg = "Email already registered. Try signing in instead.";
       }
       toast.error(errorMsg, { theme: "dark" });
     } finally {
@@ -83,6 +74,88 @@ const SignUp = () => {
     }
   };
 
+  const handleResend = async () => {
+    if (!pendingEmail || resending) return;
+    try {
+      setResending(true);
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+      });
+      if (error) throw error;
+      toast("Verification email resent!", { theme: "dark" });
+    } catch (err) {
+      toast.error("Failed to resend: " + err.message, { theme: "dark" });
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // ─── "Check Your Inbox" Screen ───────────────────────────────────────────────
+  if (pendingEmail) {
+    return (
+      <>
+        <div className="min-h-screen bg-[linear-gradient(135deg,#0a0f1e_0%,#0f1929_50%,#0d1520_100%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+          <div className="fixed rounded-full pointer-events-none z-0 w-[60vw] h-[60vw] blur-[4px] bg-[radial-gradient(circle,rgba(99,102,241,0.07)_0%,transparent_70%)]" style={{ left: "20%", top: "20%" }} />
+          <div className="fixed rounded-full pointer-events-none z-0 w-[50vw] h-[50vw] blur-[4px] bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)]" style={{ left: "55%", top: "60%" }} />
+
+          <div className="relative z-[1] w-full max-w-[420px] bg-white/[0.04] border border-white/10 p-8 backdrop-blur-[20px] shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_0_0_1px_rgba(255,255,255,0.05)] max-sm:p-6 text-center">
+            {/* Icon */}
+            <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+              <CheckCircle size={32} className="text-emerald-400" />
+            </div>
+
+            <h1 className="text-[1.5rem] font-extrabold text-white tracking-tight mb-2">
+              Check your inbox
+            </h1>
+            <p className="text-[0.85rem] text-white/50 leading-relaxed mb-2">
+              We sent a verification link to
+            </p>
+            <p className="text-[0.9rem] font-bold text-violet-300 mb-6 break-all">
+              {pendingEmail}
+            </p>
+
+            <div className="bg-white/[0.03] border border-white/8 rounded-xl p-4 mb-6 text-left flex flex-col gap-2">
+              {[
+                "Open the email from FQz Games",
+                "Click the \"Confirm your email\" link",
+                "You'll be signed in automatically",
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-[0.7rem] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="text-[0.82rem] text-white/60">{step}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-[0.75rem] text-white/35 mb-4">
+              Didn't receive it? Check your spam folder or resend below.
+            </p>
+
+            <button
+              onClick={handleResend}
+              disabled={resending}
+              className="w-full py-2.5 mb-3 text-[0.85rem] font-bold border border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/8 hover:text-white cursor-pointer transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <RefreshCw size={14} className={resending ? "animate-spin" : ""} />
+              {resending ? "Resending..." : "Resend verification email"}
+            </button>
+
+            <button
+              onClick={() => navigate("/signin")}
+              className="w-full py-2.5 text-[0.85rem] font-bold border-none cursor-pointer bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_18px_rgba(99,102,241,0.35)] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(99,102,241,0.5)] hover:-translate-y-px active:scale-[0.98]"
+            >
+              Go to Sign In
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ─── Registration Form ────────────────────────────────────────────────────────
   return (
     <>
       <div className="min-h-screen bg-[linear-gradient(135deg,#0a0f1e_0%,#0f1929_50%,#0d1520_100%)] flex flex-col items-center justify-center p-4 relative overflow-hidden">

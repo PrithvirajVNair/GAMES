@@ -85,10 +85,36 @@ const FlagQuiz = () => {
     return localStorage.getItem("flagQuizContinent") || "All";
   });
 
+  // Server-side session ID — stored in state only (never localStorage)
+  // The server uses this to compute time_ms from its own started_at timestamp.
+  const [sessionId, setSessionId] = useState(null);
+  const sessionIdRef = useRef(null);
+  // Keep ref in sync so async callbacks always read the latest value
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
+
   useEffect(() => {
     localStorage.setItem("flagQuizContinent", selectedContinent);
   }, [selectedContinent]);
 
+  // Called when a new game begins — records start time on the server.
+  const startSession = async () => {
+    if (!user) return; // only authenticated users need a session
+    try {
+      const { data, error } = await supabase.rpc("start_quiz_session", {
+        quiz_type: "flag_quiz",
+      });
+      if (error) throw error;
+      setSessionId(data);
+    } catch (err) {
+      // Non-fatal: if session creation fails the user can still play,
+      // but score submission will tell them to try again.
+      console.warn("Could not start quiz session:", err.message);
+    }
+  };
+
+  // Manual "Save Score" button handler (shown after auto-submit fails)
   const handleSubmitScore = async () => {
     if (selectedContinent !== "All" || quiz.score !== countries.data.length)
       return;
@@ -97,19 +123,24 @@ const FlagQuiz = () => {
       return;
     }
 
+    const sid = sessionIdRef.current;
+    if (!sid) {
+      toast.error(
+        "No active session found. Please restart the quiz and try again.",
+        { theme: "dark" }
+      );
+      return;
+    }
+
     try {
       setSubmittingScore(true);
-      const { error } = await supabase.from("scores").insert([
-        {
-          user_id: user.id,
-          time_ms: elapsed * 1000,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-
+      const { error } = await supabase.rpc("submit_flag_quiz_score", {
+        p_session_id: sid,
+      });
       if (error) throw error;
       toast("Score submitted to global leaderboard!", { theme: "dark" });
       setScoreSubmitted(true);
+      setSessionId(null);
     } catch (err) {
       console.error(err);
       toast.error("Failed to submit score: " + err.message, { theme: "dark" });
@@ -322,7 +353,10 @@ const FlagQuiz = () => {
     setElapsed(0);
     setStarted(true);
     setScoreSubmitted(false);
-  }, [selectedContinent]);
+    setSessionId(null);
+    startSession();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContinent, user]);
   const handleResume = useCallback(() => {
     if (!localStorage.getItem("quizStartTime"))
       localStorage.setItem("quizStartTime", Date.now().toString());
@@ -347,7 +381,10 @@ const FlagQuiz = () => {
     setElapsed(0);
     setStarted(true);
     setScoreSubmitted(false);
-  }, [selectedContinent]);
+    setSessionId(null);
+    startSession();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContinent, user]);
 
   useEffect(() => {
     localStorage.setItem("flagQuiz", JSON.stringify(quiz));
@@ -364,7 +401,9 @@ const FlagQuiz = () => {
     if (!correct) inputRef.current?.focus();
   }, [correct]);
 
-  // Auto-submit score to Supabase when quiz is completed
+  // Auto-submit score to Supabase when quiz is completed.
+  // time_ms is computed by the server from the session's started_at — the
+  // client never sends a time value, closing the manipulation exploit.
   useEffect(() => {
     if (
       completed &&
@@ -374,20 +413,27 @@ const FlagQuiz = () => {
     ) {
       if (user) {
         const autoSubmit = async () => {
+          const sid = sessionIdRef.current;
+          if (!sid) {
+            // Session missing (e.g. user resumed a saved game after signing in).
+            // Show the manual Save Score button instead of crashing.
+            toast.info(
+              "Couldn't auto-save: no active session. Use the Save Score button.",
+              { theme: "dark", autoClose: 8000 }
+            );
+            return;
+          }
           try {
             setSubmittingScore(true);
-            const { error } = await supabase.from("scores").insert([
-              {
-                user_id: user.id,
-                time_ms: elapsed * 1000,
-                created_at: new Date().toISOString(),
-              },
-            ]);
+            const { error } = await supabase.rpc("submit_flag_quiz_score", {
+              p_session_id: sid,
+            });
             if (error) throw error;
             toast("Score automatically saved to global leaderboard!", {
               theme: "dark",
             });
             setScoreSubmitted(true);
+            setSessionId(null);
           } catch (err) {
             console.error("Auto score submit failed:", err);
             toast.error("Failed to auto-save score: " + err.message, {
@@ -408,7 +454,8 @@ const FlagQuiz = () => {
         );
       }
     }
-  }, [completed, user, scoreSubmitted, elapsed, selectedContinent, quiz.score]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed, user, scoreSubmitted, selectedContinent, quiz.score]);
 
   const formatTime = (s) =>
     `${Math.floor(s / 60)

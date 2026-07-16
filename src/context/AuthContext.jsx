@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext({});
 
@@ -39,6 +40,24 @@ export const AuthProvider = ({ children }) => {
       if (currentSession?.user) {
         setLoading(true);
         const profile = await fetchProfile(currentSession.user.id);
+
+        // Ban check: if the profile is flagged as banned, sign out immediately.
+        // This fires on every auth state change (sign-in, tab focus, token refresh)
+        // so banned users cannot access the app even with a valid JWT.
+        if (profile?.is_banned) {
+          await supabase.auth.signOut();
+          if (active) {
+            setUser(null);
+            setSession(null);
+            setLoading(false);
+          }
+          toast.error(
+            "Your account has been suspended. Please contact support.",
+            { theme: "dark", autoClose: 8000 }
+          );
+          return;
+        }
+
         if (active) {
           setUser(profile);
           setLoading(false);
