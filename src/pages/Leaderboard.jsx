@@ -34,7 +34,7 @@ const Leaderboard = () => {
       setError(null);
 
       if (activeGame === "flag") {
-        // Fetch all scores and their usernames
+        // Fetch all scores and their profiles (including ban status)
         const { data, error: fetchError } = await supabase.from("scores").select(`
             id,
             time_ms,
@@ -42,33 +42,35 @@ const Leaderboard = () => {
             user_id,
             profiles:user_id (
               username,
-              badge
+              badge,
+              is_banned
             )
           `);
 
         if (fetchError) throw fetchError;
 
-        // Group by user_id to filter for the best score (minimum time_ms) of each user
+        // Group by user_id, skipping banned users entirely
         const bestScoresMap = {};
         (data || []).forEach((row) => {
           const userId = row.user_id;
           if (!userId) return;
+          // Hide scores belonging to banned accounts
+          if (row.profiles?.is_banned) return;
 
           const existing = bestScoresMap[userId];
           if (!existing) {
             bestScoresMap[userId] = row;
           } else {
-            // A lower time_ms is better
             if (row.time_ms < existing.time_ms) {
               bestScoresMap[userId] = row;
             }
           }
         });
 
-        // Sort the grouped array by time_ms ascending (fastest first)
+        // Sort by time_ms ascending (fastest first)
         const sortedLeaderboard = Object.values(bestScoresMap)
           .sort((a, b) => a.time_ms - b.time_ms)
-          .slice(0, 100); // Limit to top 100 players
+          .slice(0, 100);
 
         setScores(sortedLeaderboard);
       } else if (activeGame === "sudoku") {
