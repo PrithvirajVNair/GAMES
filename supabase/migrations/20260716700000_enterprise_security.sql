@@ -283,7 +283,7 @@ $$;
 -- 6. start_quiz_session — input validation + rate limiting
 -- =============================================================================
 
-create or replace function public.start_quiz_session(quiz_type text)
+create or replace function public.start_quiz_session(p_quiz_type text)
 returns uuid
 language plpgsql
 security definer
@@ -298,8 +298,8 @@ begin
   end if;
 
   -- Validate quiz type against whitelist
-  if not (quiz_type = any(v_valid_types)) then
-    raise exception 'Invalid quiz type: %', quiz_type;
+  if not (p_quiz_type = any(v_valid_types)) then
+    raise exception 'Invalid quiz type: %', p_quiz_type;
   end if;
 
   -- Rate limit: max 30 session starts per hour (generous for legit players)
@@ -314,7 +314,7 @@ begin
     and started_at < now() - interval '4 hours';
 
   insert into public.quiz_sessions (user_id, quiz_type, started_at)
-  values (auth.uid(), quiz_type, now())
+  values (auth.uid(), p_quiz_type, now())
   returning id into v_session_id;
 
   return v_session_id;
