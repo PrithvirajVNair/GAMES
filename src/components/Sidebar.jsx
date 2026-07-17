@@ -196,9 +196,6 @@ const Sidebar = ({ isOpen, onClose }) => {
                       {item.title}
                     </span>
                   </div>
-                  <span className="sidebar-text-label text-[0.85rem] text-white/50">
-                    {isPlayable ? (isActive ? "⚡" : "▶") : "🔒"}
-                  </span>
                 </div>
               );
             })}
@@ -212,7 +209,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               }`}
             >
               <div className="sidebar-item-inner flex items-center gap-1.5">
-                <span className="sidebar-text-label flex-shrink-0">🎮</span>
+                <span className="sidebar-text-label flex-shrink-0"></span>
                 <span className="sidebar-text-label whitespace-nowrap">
                   Games
                 </span>
@@ -268,9 +265,6 @@ const Sidebar = ({ isOpen, onClose }) => {
                           {item.title}
                         </span>
                       </div>
-                      <span className="sidebar-text-label text-[0.85rem] text-white/50">
-                        {isPlayable ? (isActive ? "⚡" : "▶") : "🔒"}
-                      </span>
                     </div>
                   );
                 })}
