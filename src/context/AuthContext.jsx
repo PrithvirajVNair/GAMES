@@ -112,9 +112,16 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
     });
-    if (error) {
-      throw error;
+    if (error) throw error;
+
+    // Check ban status immediately — before the caller shows any success UI.
+    // If banned, sign out and throw so SignIn.jsx treats it as a failed login.
+    const profile = await fetchProfile(data.user.id);
+    if (profile?.is_banned) {
+      await supabase.auth.signOut();
+      throw new Error('Your account has been suspended. Please contact support.');
     }
+
     return data;
   };
 
