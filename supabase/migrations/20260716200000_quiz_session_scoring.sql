@@ -132,7 +132,7 @@ as $$
 declare
   v_session      public.quiz_sessions%rowtype;
   v_time_ms      bigint;
-  v_score_id     uuid;
+  v_score_id     bigint;
 begin
   -- Must be authenticated
   if auth.uid() is null then

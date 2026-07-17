@@ -29,10 +29,11 @@ const ALL_CONTINENTS = [
   ...Object.keys(continentNames).filter((k) => k !== "AN"),
 ];
 
-const getCountriesForContinent = (continent) =>
-  continent === "All"
+const getCountriesForContinent = (continent) => {
+  return continent === "All"
     ? countries.data
     : countries.data.filter((c) => c.continent === continentNames[continent]);
+};
 const shuffleArray = (a) => {
   const arr = [...a];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -89,7 +90,6 @@ const FlagQuiz = () => {
   // The server uses this to compute time_ms from its own started_at timestamp.
   const [sessionId, setSessionId] = useState(null);
   const sessionIdRef = useRef(null);
-  // Keep ref in sync so async callbacks always read the latest value
   useEffect(() => {
     sessionIdRef.current = sessionId;
   }, [sessionId]);
@@ -116,7 +116,7 @@ const FlagQuiz = () => {
 
   // Manual "Save Score" button handler (shown after auto-submit fails)
   const handleSubmitScore = async () => {
-    if (selectedContinent !== "All" || quiz.score !== countries.data.length)
+    if (selectedContinent !== "All" || quiz.score !== getCountriesForContinent("All").length)
       return;
     if (!user) {
       setAuthModalOpen(true);
@@ -409,7 +409,7 @@ const FlagQuiz = () => {
       completed &&
       !scoreSubmitted &&
       selectedContinent === "All" &&
-      quiz.score === countries.data.length
+      quiz.score === getCountriesForContinent("All").length
     ) {
       if (user) {
         const autoSubmit = async () => {
