@@ -103,7 +103,7 @@ const FlagQuiz = () => {
     if (!user) return; // only authenticated users need a session
     try {
       const { data, error } = await supabase.rpc("start_quiz_session", {
-        quiz_type: "flag_quiz",
+        p_quiz_type: "flag_quiz",
       });
       if (error) throw error;
       setSessionId(data);
