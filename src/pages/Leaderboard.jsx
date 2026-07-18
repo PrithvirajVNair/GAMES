@@ -2,20 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import {
-  Award,
-  Trophy,
-  ArrowLeft,
-  RefreshCw,
-  Flame,
-} from "lucide-react";
+import { Award, Trophy, ArrowLeft, RefreshCw, Flame } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { getLeaderboard } from "../services/leaderboardService";
 import { UserBadgeIcon } from "../utils/badgeConfig";
 
 const getTodaySeed = () => {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 const Leaderboard = () => {
@@ -35,7 +29,8 @@ const Leaderboard = () => {
 
       if (activeGame === "flag") {
         // Fetch all scores and their profiles (including ban status)
-        const { data, error: fetchError } = await supabase.from("scores").select(`
+        const { data, error: fetchError } = await supabase.from("scores")
+          .select(`
             id,
             time_ms,
             created_at,
@@ -75,18 +70,18 @@ const Leaderboard = () => {
         setScores(sortedLeaderboard);
       } else if (activeGame === "sudoku") {
         // Sudoku
-        const mode = sudokuSubMode === "daily" ? 'daily' : 'unlimited';
+        const mode = sudokuSubMode === "daily" ? "daily" : "unlimited";
         const seed = sudokuSubMode === "daily" ? getTodaySeed() : null;
         const data = await getLeaderboard({ mode, seed, limit: 100 });
-        
+
         // Map data to match flag quiz structure so the UI works perfectly!
-        const mappedData = data.map(d => ({
+        const mappedData = data.map((d) => ({
           id: d.id,
           time_ms: d.timeMs,
           created_at: d.date,
           user_id: d.userId,
           streak: d.streak,
-          profiles: { username: d.username, badge: d.badge }
+          profiles: { username: d.username, badge: d.badge },
         }));
         setScores(mappedData);
       }
@@ -101,10 +96,13 @@ const Leaderboard = () => {
   useEffect(() => {
     let title = "Flag Quiz Leaderboard";
     if (activeGame === "sudoku") {
-      title = sudokuSubMode === "daily" ? "Daily Sudoku Leaderboard" : "Unlimited Sudoku Leaderboard";
+      title =
+        sudokuSubMode === "daily"
+          ? "Daily Sudoku Leaderboard"
+          : "Unlimited Sudoku Leaderboard";
     }
     document.title = `${title} | FQz Games`;
-    
+
     const timer = setTimeout(() => {
       fetchLeaderboard();
     }, 0);
@@ -200,11 +198,18 @@ const Leaderboard = () => {
                 <ArrowLeft size={16} />
               </button>
               <div className="flex items-start gap-1.5 sm:gap-2 min-w-0 flex-1">
-                <Trophy size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                <Trophy
+                  size={20}
+                  className="text-amber-400 flex-shrink-0 mt-0.5"
+                />
                 <h1 className="text-[1.05rem] sm:text-[1.3rem] md:text-[1.7rem] font-extrabold tracking-tight text-white leading-tight">
-                  {activeGame === 'flag' && 'Flag Quiz Leaderboard'}
-                  {activeGame === 'sudoku' && sudokuSubMode === 'daily' && 'Daily Challenge (Sudoku)'}
-                  {activeGame === 'sudoku' && sudokuSubMode === 'unlimited' && 'Unlimited Expert (Sudoku)'}
+                  {activeGame === "flag" && "Flag Quiz Leaderboard"}
+                  {activeGame === "sudoku" &&
+                    sudokuSubMode === "daily" &&
+                    "Daily Challenge (Sudoku)"}
+                  {activeGame === "sudoku" &&
+                    sudokuSubMode === "unlimited" &&
+                    "Unlimited Expert (Sudoku)"}
                 </h1>
               </div>
             </div>
@@ -221,21 +226,21 @@ const Leaderboard = () => {
           {/* Game Selection Tabs */}
           <div className="flex bg-[#0f172a] rounded-xl p-1.5 mb-2 gap-1 border border-white/5">
             <button
-              onClick={() => setActiveGame('flag')}
+              onClick={() => setActiveGame("flag")}
               className={`flex-1 py-2 px-3 text-[0.8rem] sm:text-[0.85rem] font-bold rounded-lg transition-all duration-200 ${
-                activeGame === 'flag'
-                  ? 'bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
-                  : 'text-white/50 hover:bg-white/5 hover:text-white/80'
+                activeGame === "flag"
+                  ? "bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]"
+                  : "text-white/50 hover:bg-white/5 hover:text-white/80"
               }`}
             >
               🚩 Flag Quiz
             </button>
             <button
-              onClick={() => setActiveGame('sudoku')}
+              onClick={() => setActiveGame("sudoku")}
               className={`flex-1 py-2 px-3 text-[0.8rem] sm:text-[0.85rem] font-bold rounded-lg transition-all duration-200 ${
-                activeGame === 'sudoku'
-                  ? 'bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
-                  : 'text-white/50 hover:bg-white/5 hover:text-white/80'
+                activeGame === "sudoku"
+                  ? "bg-[linear-gradient(135deg,#6366f1,#8b5cf6)] text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)]"
+                  : "text-white/50 hover:bg-white/5 hover:text-white/80"
               }`}
             >
               🧩 Sudoku
@@ -243,31 +248,31 @@ const Leaderboard = () => {
           </div>
 
           {/* Sudoku Sub-tabs */}
-          {activeGame === 'sudoku' && (
+          {activeGame === "sudoku" && (
             <div className="flex bg-[#0f172a]/50 rounded-xl p-1 mb-6 gap-1 border border-white/5 max-w-[300px] mx-auto">
               <button
-                onClick={() => setSudokuSubMode('daily')}
+                onClick={() => setSudokuSubMode("daily")}
                 className={`flex-1 py-1.5 px-3 text-[0.75rem] sm:text-[0.8rem] font-bold rounded-lg transition-all duration-200 ${
-                  sudokuSubMode === 'daily'
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-white/40 hover:bg-white/5 hover:text-white/70'
+                  sudokuSubMode === "daily"
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-white/40 hover:bg-white/5 hover:text-white/70"
                 }`}
               >
                 📅 Daily
               </button>
               <button
-                onClick={() => setSudokuSubMode('unlimited')}
+                onClick={() => setSudokuSubMode("unlimited")}
                 className={`flex-1 py-1.5 px-3 text-[0.75rem] sm:text-[0.8rem] font-bold rounded-lg transition-all duration-200 ${
-                  sudokuSubMode === 'unlimited'
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-white/40 hover:bg-white/5 hover:text-white/70'
+                  sudokuSubMode === "unlimited"
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-white/40 hover:bg-white/5 hover:text-white/70"
                 }`}
               >
                 ♾️ Unlimited
               </button>
             </div>
           )}
-          {activeGame === 'flag' && <div className="mb-6" />}
+          {activeGame === "flag" && <div className="mb-6" />}
 
           {/* Leaderboard Table/List */}
           {loading ? (
@@ -305,9 +310,13 @@ const Leaderboard = () => {
               <table className="w-full border-collapse text-left table-fixed">
                 <thead className="sticky top-0 bg-[#0c1222] z-20">
                   <tr className="border-b border-white/8 text-[0.68rem] sm:text-[0.74rem] font-bold text-white/40 uppercase tracking-wider">
-                    <th className="pb-3 pt-2 pl-1 sm:pl-2 w-[40px] sm:w-[70px]">Rank</th>
+                    <th className="pb-3 pt-2 pl-1 sm:pl-2 w-[40px] sm:w-[70px]">
+                      Rank
+                    </th>
                     <th className="pb-3 pt-2">Player</th>
-                    <th className="pb-3 pt-2 pr-1 sm:pr-2 text-right w-[75px] sm:w-[110px]">Time</th>
+                    <th className="pb-3 pt-2 pr-1 sm:pr-2 text-right w-[75px] sm:w-[110px]">
+                      Time
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -335,7 +344,7 @@ const Leaderboard = () => {
                         background:
                           "linear-gradient(115deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.15) 46%, rgba(255, 244, 204, 0.20) 50%, rgba(251, 191, 36, 0.15) 54%, rgba(251, 191, 36, 0.15) 100%)",
                         backgroundSize: "300% 100%",
-                        animation: "gold-shimmer-sweep 9s infinite linear"
+                        animation: "gold-shimmer-sweep 9s infinite linear",
                       };
                     } else if (rank === 2) {
                       rowBgClass =
@@ -358,7 +367,9 @@ const Leaderboard = () => {
                         <td className="py-3 sm:py-4 pl-1 sm:pl-2 font-black text-[0.9rem] sm:text-[1rem]">
                           <div className="relative z-10">
                             {typeof rankBadge === "string" ? (
-                              <span className="text-[1.1rem] sm:text-[1.2rem]">{rankBadge}</span>
+                              <span className="text-[1.1rem] sm:text-[1.2rem]">
+                                {rankBadge}
+                              </span>
                             ) : (
                               <span className="text-white/35 pl-1 sm:pl-1.5">
                                 {rankBadge}
@@ -379,15 +390,18 @@ const Leaderboard = () => {
                                 left: "-80px",
                                 top: "-100px",
                                 filter: "blur(24px)",
-                                animation: "orb-float-gold 28s infinite ease-in-out"
+                                animation:
+                                  "orb-float-gold 28s infinite ease-in-out",
                               }}
                             >
                               <div
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%",
-                                  background: "linear-gradient(to bottom right, rgba(251, 191, 36, 0.22), rgba(253, 224, 71, 0.04))"
+                                  borderRadius:
+                                    "30% 70% 70% 30% / 30% 30% 70% 70%",
+                                  background:
+                                    "linear-gradient(to bottom right, rgba(251, 191, 36, 0.22), rgba(253, 224, 71, 0.04))",
                                 }}
                               />
                             </div>
@@ -401,7 +415,8 @@ const Leaderboard = () => {
                                 right: "-40px",
                                 top: "-35px",
                                 filter: "blur(24px)",
-                                animation: "orb-float-silver 28s infinite ease-in-out"
+                                animation:
+                                  "orb-float-silver 28s infinite ease-in-out",
                               }}
                             >
                               <div
@@ -409,7 +424,8 @@ const Leaderboard = () => {
                                   width: "100%",
                                   height: "100%",
                                   borderRadius: "16px", // Square shape with slight rounding
-                                  background: "linear-gradient(to bottom right, rgba(148, 163, 184, 0.22), rgba(203, 213, 225, 0.04))"
+                                  background:
+                                    "linear-gradient(to bottom right, rgba(148, 163, 184, 0.22), rgba(203, 213, 225, 0.04))",
                                 }}
                               />
                             </div>
@@ -423,15 +439,18 @@ const Leaderboard = () => {
                                 left: "20%",
                                 top: "-90px",
                                 filter: "blur(28px)",
-                                animation: "orb-float-bronze 28s infinite ease-in-out"
+                                animation:
+                                  "orb-float-bronze 28s infinite ease-in-out",
                               }}
                             >
                               <div
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)", // Triangle shape
-                                  background: "linear-gradient(to bottom right, rgba(180, 83, 9, 0.26), rgba(251, 146, 60, 0.06))"
+                                  clipPath:
+                                    "polygon(50% 0%, 0% 100%, 100% 100%)", // Triangle shape
+                                  background:
+                                    "linear-gradient(to bottom right, rgba(180, 83, 9, 0.26), rgba(251, 146, 60, 0.06))",
                                 }}
                               />
                             </div>
@@ -452,10 +471,17 @@ const Leaderboard = () => {
                             >
                               {username}
                             </span>
-                            <UserBadgeIcon badge={score.profiles?.badge} size={13} />
-                            {score.streak > 0 && activeGame === 'sudoku' && (
-                              <span className="flex items-center gap-0.5 text-orange-400 text-[0.65rem] sm:text-[0.7rem] font-bold flex-shrink-0" title={`${score.streak} Day Streak`}>
-                                <Flame size={12} className="flex-shrink-0" /> {score.streak}
+                            <UserBadgeIcon
+                              badge={score.profiles?.badge}
+                              size={13}
+                            />
+                            {score.streak > 0 && activeGame === "sudoku" && (
+                              <span
+                                className="flex items-center gap-0.5 text-orange-400 text-[0.65rem] sm:text-[0.7rem] font-bold flex-shrink-0"
+                                title={`${score.streak} Day Streak`}
+                              >
+                                <Flame size={12} className="flex-shrink-0" />{" "}
+                                {score.streak}
                               </span>
                             )}
                             {isCurrentUser && (

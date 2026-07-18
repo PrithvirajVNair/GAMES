@@ -7,7 +7,7 @@ import { LogIn, Mail, Lock, ArrowLeft, RefreshCw } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 
 const SignIn = () => {
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,6 +20,14 @@ const SignIn = () => {
   const [resending, setResending] = useState(false);
 
   const from = location.state?.from?.pathname || "/";
+
+  // If the user lands here (e.g. from an email verification link) and is already logged in, redirect them
+  React.useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
+
 
   const handleSignIn = async (e) => {
     e.preventDefault();
