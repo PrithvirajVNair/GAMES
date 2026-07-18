@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Megaphone, Gamepad2 } from "lucide-react";
+import { X, Megaphone, Gamepad2, ShieldCheck } from "lucide-react";
 import { getLatestAnnouncement } from "../services/announcementService";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -43,6 +43,7 @@ const AnnouncementPopup = () => {
   if (loading || !announcement || !isOpen) return null;
 
   const isGameType = announcement.type === "game";
+  const isPatchType = announcement.type === "patch";
 
   return (
     <AnimatePresence>
@@ -66,6 +67,8 @@ const AnnouncementPopup = () => {
             className={`relative w-full max-w-[460px] bg-[rgba(10,15,30,0.85)] border p-8 backdrop-blur-[20px] z-10 flex flex-col gap-6 text-center transform transition-all duration-300 max-sm:p-6 ${
               isGameType
                 ? "border-violet-500/30 shadow-[0_0_50px_rgba(139,92,246,0.2)]"
+                : isPatchType
+                ? "border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]"
                 : "border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)]"
             }`}
           >
@@ -84,17 +87,19 @@ const AnnouncementPopup = () => {
                 className={`w-14 h-14 rounded-full flex items-center justify-center border ${
                   isGameType
                     ? "bg-violet-500/15 border-violet-500/25 text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+                    : isPatchType
+                    ? "bg-emerald-500/15 border-emerald-500/25 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                     : "bg-amber-500/15 border-amber-500/25 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                 }`}
               >
-                {isGameType ? <Gamepad2 size={28} /> : <Megaphone size={28} />}
+                {isGameType ? <Gamepad2 size={28} /> : isPatchType ? <ShieldCheck size={28} /> : <Megaphone size={28} />}
               </div>
               <span
                 className={`text-[0.72rem] font-bold tracking-[1.5px] uppercase ${
-                  isGameType ? "text-violet-400" : "text-amber-400"
+                  isGameType ? "text-violet-400" : isPatchType ? "text-emerald-400" : "text-amber-400"
                 }`}
               >
-                {isGameType ? "New Game Released!" : "Latest Announcement"}
+                {isGameType ? "New Game Released!" : isPatchType ? "System Update" : "Latest Announcement"}
               </span>
             </div>
 
@@ -116,10 +121,12 @@ const AnnouncementPopup = () => {
               className={`w-full py-3.5 text-[0.9rem] font-black border-none cursor-pointer text-white transition-all duration-200 hover:-translate-y-px active:scale-[0.98] ${
                 isGameType
                   ? "bg-[linear-gradient(135deg,#8b5cf6,#7c3aed)] shadow-[0_4px_18px_rgba(139,92,246,0.3)] hover:shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
+                  : isPatchType
+                  ? "bg-[linear-gradient(135deg,#10b981,#059669)] shadow-[0_4px_18px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_24px_rgba(16,185,129,0.45)]"
                   : "bg-[linear-gradient(135deg,#f59e0b,#d97706)] shadow-[0_4px_18px_rgba(245,158,11,0.3)] hover:shadow-[0_6px_24px_rgba(245,158,11,0.45)]"
               }`}
             >
-              {isGameType ? "Let's Play! ➔" : "Awesome, Got it!"}
+              {isGameType ? "Let's Play! ➔" : isPatchType ? "Awesome, Got it!" : "Awesome, Got it!"}
             </button>
           </motion.div>
         </div>

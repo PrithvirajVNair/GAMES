@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import logos from "../utils/logos";
 import { Building2 } from "lucide-react";
 import SidebarNav from "../components/Sidebar";
+import { toast } from "react-toastify";
+import InputBehaviorAnalyzer from "../utils/InputBehaviorAnalyzer";
 import {
   playDup as _playDup,
   playLolPing as _playLolPing,
@@ -110,6 +112,7 @@ const LogoQuiz = () => {
   }, []);
 
   const inputRef = useRef(null);
+
   const [isMuted, setIsMuted] = useState(
     () => localStorage.getItem("flagQuizMuted") === "true",
   );
@@ -138,6 +141,17 @@ const LogoQuiz = () => {
     [sidebarOpen, setSidebarOpen] = useState(false),
     [started, setStarted] = useState(false),
     [imgError, setImgError] = useState(false);
+
+  const analyzerRef = useRef(null);
+  useEffect(() => {
+    if (started && !completed && !gaveUp && inputRef.current) {
+      if (!analyzerRef.current) {
+        analyzerRef.current = new InputBehaviorAnalyzer(inputRef.current);
+      }
+    } else {
+      analyzerRef.current = null;
+    }
+  }, [started, completed, gaveUp]);
   const [elapsed, setElapsed] = useState(() => {
     const s = localStorage.getItem("logoQuizStartTime");
     if (!s) return 0;
@@ -167,6 +181,16 @@ const LogoQuiz = () => {
     const sanitize = (str) => str.replace(/[^a-z0-9]/g, "");
 
     if (tr === ex || sanitize(tr) === sanitize(ex)) {
+      if (analyzerRef.current) {
+        const analysis = analyzerRef.current.analyze();
+        if (!analysis.isHuman) {
+          toast.error("Unusual input detected. Please type manually.", { theme: "dark" });
+          analyzerRef.current.reset();
+          setQuiz((prev) => ({ ...prev, answer: "" }));
+          return;
+        }
+        analyzerRef.current.reset();
+      }
       playDup();
       setCorrect(true);
       setTimeout(() => {

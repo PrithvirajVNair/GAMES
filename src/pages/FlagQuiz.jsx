@@ -12,6 +12,7 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { toast } from "react-toastify";
 import AuthModal from "../components/AuthModal";
+import InputBehaviorAnalyzer from "../utils/InputBehaviorAnalyzer";
 
 // Continent name mapping
 const continentNames = {
@@ -233,6 +234,7 @@ const FlagQuiz = () => {
   }, []);
 
   const inputRef = useRef(null);
+
   const [isMuted, setIsMuted] = useState(
     () => localStorage.getItem("flagQuizMuted") === "true",
   );
@@ -260,6 +262,17 @@ const FlagQuiz = () => {
     [gaveUp, setGaveUp] = useState(false),
     [sidebarOpen, setSidebarOpen] = useState(false),
     [started, setStarted] = useState(false);
+
+  const analyzerRef = useRef(null);
+  useEffect(() => {
+    if (started && !completed && !gaveUp && inputRef.current) {
+      if (!analyzerRef.current) {
+        analyzerRef.current = new InputBehaviorAnalyzer(inputRef.current);
+      }
+    } else {
+      analyzerRef.current = null;
+    }
+  }, [started, completed, gaveUp]);
   const [elapsed, setElapsed] = useState(() => {
     const s = localStorage.getItem("quizStartTime");
     if (!s) return 0;
@@ -276,6 +289,16 @@ const FlagQuiz = () => {
     if (correct) return;
     if (!quiz.answer || !quiz.currentCountry) return;
     if (isAnswerCorrect(quiz.answer, quiz.currentCountry)) {
+      if (analyzerRef.current) {
+        const analysis = analyzerRef.current.analyze();
+        if (!analysis.isHuman) {
+          toast.error("Unusual input detected. Please type manually.", { theme: "dark" });
+          analyzerRef.current.reset();
+          setQuiz((prev) => ({ ...prev, answer: "" }));
+          return;
+        }
+        analyzerRef.current.reset();
+      }
       playDup();
       setCorrect(true);
       setTimeout(() => {
