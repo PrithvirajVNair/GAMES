@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Megaphone, Gamepad2, Plus, Trash2, Calendar } from "lucide-react";
+import { X, Megaphone, Gamepad2, Plus, Trash2, Calendar, ShieldCheck } from "lucide-react";
 import { getAnnouncements, createAnnouncement, deleteAnnouncement } from "../services/announcementService";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -153,6 +153,7 @@ const AdminAnnouncementModal = ({ isOpen, onClose }) => {
                 >
                   <option value="news" className="bg-[#0b0f1e] text-white">General News</option>
                   <option value="game" className="bg-[#0b0f1e] text-white">New Game Added</option>
+                  <option value="patch" className="bg-[#0b0f1e] text-white">Patch Note</option>
                 </select>
               </div>
             </div>
@@ -195,6 +196,7 @@ const AdminAnnouncementModal = ({ isOpen, onClose }) => {
               <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1.5 fqz-sidebar-scroll">
                 {announcements.map((ann) => {
                   const isGame = ann.type === "game";
+                  const isPatch = ann.type === "patch";
                   const dateStr = new Date(ann.created_at).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -205,16 +207,16 @@ const AdminAnnouncementModal = ({ isOpen, onClose }) => {
                     <div
                       key={ann.id}
                       className={`flex items-start justify-between gap-4 p-4 rounded-xl border bg-white/[0.02] ${
-                        isGame ? "border-violet-500/15" : "border-amber-500/15"
+                        isGame ? "border-violet-500/15" : isPatch ? "border-emerald-500/15" : "border-amber-500/15"
                       }`}
                     >
                       <div className="flex gap-3">
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${
-                            isGame ? "bg-violet-500/10 text-violet-400" : "bg-amber-500/10 text-amber-400"
+                            isGame ? "bg-violet-500/10 text-violet-400" : isPatch ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
                           }`}
                         >
-                          {isGame ? <Gamepad2 size={15} /> : <Megaphone size={15} />}
+                          {isGame ? <Gamepad2 size={15} /> : isPatch ? <ShieldCheck size={15} /> : <Megaphone size={15} />}
                         </div>
                         <div className="flex flex-col gap-0.5 text-left">
                           <div className="flex items-center gap-2">
@@ -223,7 +225,7 @@ const AdminAnnouncementModal = ({ isOpen, onClose }) => {
                             </span>
                             <span
                               className={`text-[0.62rem] px-1.5 py-0.5 rounded font-black tracking-wider uppercase ${
-                                isGame ? "bg-violet-500/15 text-violet-400" : "bg-amber-500/15 text-amber-400"
+                                isGame ? "bg-violet-500/15 text-violet-400" : isPatch ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400"
                               }`}
                             >
                               {ann.type}
