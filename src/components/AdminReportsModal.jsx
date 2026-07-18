@@ -3,7 +3,7 @@ import { X, Flag, Check, ShieldBan } from "lucide-react";
 import { getPendingReports, resolveReport } from "../services/adminService";
 import { toast } from "react-toastify";
 
-const AdminReportsModal = ({ isOpen, onClose }) => {
+const AdminReportsModal = ({ isOpen, onClose, setReportStatus, reportStatus }) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
@@ -35,6 +35,7 @@ const AdminReportsModal = ({ isOpen, onClose }) => {
       await resolveReport(reportId, action, shouldBan);
       setReports((prev) => prev.filter((r) => r.id !== reportId));
       toast.success(shouldBan ? "User banned and report resolved." : "Report dismissed.", { theme: "dark" });
+      setReportStatus(!reportStatus);
     } catch (err) {
       toast.error("Failed to resolve report: " + err.message, { theme: "dark" });
     } finally {
