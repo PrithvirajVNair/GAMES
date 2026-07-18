@@ -235,30 +235,22 @@ html {
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Custom thin sidebar scrollbar ── */
+/* ── Custom thin sidebar scrollbar with scroll indicators ── */
 .fqz-sidebar-scroll {
-  scrollbar-width: none;
-  scrollbar-color: transparent transparent;
-}
-.fqz-sidebar-scroll:hover {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-width: none !important; /* Hide scrollbar for Firefox */
+  background:
+    /* Shadow covers (scrolls with content) */
+    linear-gradient(rgba(10, 15, 30, 1) 30%, rgba(10, 15, 30, 0)),
+    linear-gradient(rgba(10, 15, 30, 0), rgba(10, 15, 30, 1) 70%) 0 100%,
+    /* Shadows (stay fixed relative to viewport) - Indigo glow for dark theme visibility */
+    radial-gradient(farthest-side at 50% 0, rgba(99, 102, 241, 0.35), rgba(99, 102, 241, 0)),
+    radial-gradient(farthest-side at 50% 100%, rgba(99, 102, 241, 0.35), rgba(99, 102, 241, 0)) 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
 }
 .fqz-sidebar-scroll::-webkit-scrollbar {
-  width: 2px;
-}
-.fqz-sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.fqz-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 99px;
-}
-.fqz-sidebar-scroll:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.35);
-}
-.fqz-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.6);
+  display: none !important; /* Hide scrollbar for Chrome/Safari/Edge */
 }
 
 /* ── Legal pages scrollbar ── */

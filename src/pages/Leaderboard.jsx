@@ -301,13 +301,13 @@ const Leaderboard = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden">
+            <div className="max-h-[480px] overflow-y-auto fqz-sidebar-scroll pr-1 relative">
               <table className="w-full border-collapse text-left table-fixed">
-                <thead>
+                <thead className="sticky top-0 bg-[#0c1222] z-20">
                   <tr className="border-b border-white/8 text-[0.68rem] sm:text-[0.74rem] font-bold text-white/40 uppercase tracking-wider">
-                    <th className="pb-3 pl-1 sm:pl-2 w-[40px] sm:w-[70px]">Rank</th>
-                    <th className="pb-3">Player</th>
-                    <th className="pb-3 pr-1 sm:pr-2 text-right w-[75px] sm:w-[110px]">Time</th>
+                    <th className="pb-3 pt-2 pl-1 sm:pl-2 w-[40px] sm:w-[70px]">Rank</th>
+                    <th className="pb-3 pt-2">Player</th>
+                    <th className="pb-3 pt-2 pr-1 sm:pr-2 text-right w-[75px] sm:w-[110px]">Time</th>
                   </tr>
                 </thead>
                 <tbody>
