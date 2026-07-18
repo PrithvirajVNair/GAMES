@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import AnnouncementPopup from "../components/AnnouncementPopup";
 import AdminAnnouncementModal from "../components/AdminAnnouncementModal";
 import AdminUsersModal from "../components/AdminUsersModal";
+import AdminReportsModal from "../components/AdminReportsModal";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Home = () => {
   const { session } = useAuth();
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [adminUsersModalOpen, setAdminUsersModalOpen] = useState(false);
+  const [adminReportsModalOpen, setAdminReportsModalOpen] = useState(false);
   const isAdmin = session?.user?.email === "pals234.pvr@gmail.com";
 
   useEffect(() => {
@@ -28,6 +30,13 @@ const Home = () => {
     if (location.state?.openAdminUsersModal && isAdmin) {
       const timer = setTimeout(() => {
         setAdminUsersModalOpen(true);
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    if (location.state?.openAdminReportsModal && isAdmin) {
+      const timer = setTimeout(() => {
+        setAdminReportsModalOpen(true);
         navigate(location.pathname, { replace: true, state: {} });
       }, 0);
       return () => clearTimeout(timer);
@@ -301,6 +310,13 @@ const Home = () => {
         <>
           <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3">
             <button
+              onClick={() => setAdminReportsModalOpen(true)}
+              className="bg-[linear-gradient(135deg,#ef4444,#dc2626)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_24px_rgba(239,68,68,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
+              title="Admin: View User Reports"
+            >
+              <Flag size={22} />
+            </button>
+            <button
               onClick={() => setAdminUsersModalOpen(true)}
               className="bg-[linear-gradient(135deg,#ec4899,#f43f5e)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(236,72,153,0.4)] hover:shadow-[0_6px_24px_rgba(236,72,153,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
               title="Admin: Manage Users"
@@ -322,6 +338,10 @@ const Home = () => {
           <AdminUsersModal
             isOpen={adminUsersModalOpen}
             onClose={() => setAdminUsersModalOpen(false)}
+          />
+          <AdminReportsModal
+            isOpen={adminReportsModalOpen}
+            onClose={() => setAdminReportsModalOpen(false)}
           />
         </>
       )}

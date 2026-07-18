@@ -61,3 +61,30 @@ export const deleteUser = async (userId) => {
   });
   if (error) throw error;
 };
+
+/**
+ * Fetches all pending user reports.
+ * Only callable by the admin account.
+ * @returns {Promise<Array>} List of pending reports
+ */
+export const getPendingReports = async () => {
+  const { data, error } = await supabase.rpc('admin_get_pending_reports');
+  if (error) throw error;
+  return data || [];
+};
+
+/**
+ * Resolves a report, optionally banning the reported user.
+ * Only callable by the admin account.
+ * @param {string} reportId - The ID of the report.
+ * @param {string} action - 'resolved' or 'dismissed'.
+ * @param {boolean} shouldBan - true to also ban the reported user.
+ */
+export const resolveReport = async (reportId, action, shouldBan = false) => {
+  const { error } = await supabase.rpc('admin_resolve_report', {
+    target_report_id: reportId,
+    new_status: action,
+    should_ban: shouldBan,
+  });
+  if (error) throw error;
+};

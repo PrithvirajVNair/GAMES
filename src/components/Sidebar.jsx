@@ -308,6 +308,21 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <>
                       <button
                         onClick={() => {
+                          navigate("/", { state: { openAdminReportsModal: true } });
+                          onClose();
+                        }}
+                        className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-red-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
+                      >
+                        <Flag
+                          size={18}
+                          className="flex-shrink-0 text-red-400"
+                        />
+                        <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
+                          User Reports
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
                           navigate("/", { state: { openAdminModal: true } });
                           onClose();
                         }}

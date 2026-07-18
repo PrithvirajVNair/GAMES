@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
-import { Award, Trophy, ArrowLeft, RefreshCw, Flame } from "lucide-react";
+import { Award, Trophy, ArrowLeft, RefreshCw, Flame, AlertTriangle, X } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { getLeaderboard } from "../services/leaderboardService";
+import { submitReport } from "../services/reportService";
 import { UserBadgeIcon } from "../utils/badgeConfig";
+import { toast } from "react-toastify";
 
 const getTodaySeed = () => {
   const d = new Date();
@@ -21,6 +23,29 @@ const Leaderboard = () => {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Reporting
+  const [reportModalUser, setReportModalUser] = useState(null);
+  const [reportReason, setReportReason] = useState("");
+  const [submittingReport, setSubmittingReport] = useState(false);
+
+  const handleReportSubmit = async () => {
+    if (!reportReason) {
+      toast.error("Please select a reason for reporting.", { theme: "dark" });
+      return;
+    }
+    try {
+      setSubmittingReport(true);
+      await submitReport(reportModalUser.user_id, reportReason);
+      toast.success("Report submitted successfully. Thank you for keeping FQz safe!", { theme: "dark" });
+      setReportModalUser(null);
+      setReportReason("");
+    } catch (err) {
+      toast.error(err.message || "Failed to submit report.", { theme: "dark" });
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -360,7 +385,7 @@ const Leaderboard = () => {
                     return (
                       <tr
                         key={score.id}
-                        className={`transition-colors duration-150 relative overflow-hidden ${rowBgClass}`}
+                        className={`group transition-colors duration-150 relative overflow-hidden ${rowBgClass}`}
                         style={{ clipPath: "inset(0)", ...rowStyle }}
                       >
                         {/* Rank */}
@@ -490,9 +515,20 @@ const Leaderboard = () => {
                               </span>
                             )}
                           </div>
-                          <span className="block text-[0.68rem] sm:text-[0.72rem] text-white/30 font-medium mt-0.5 relative z-10">
-                            {formatDate(score.created_at)}
-                          </span>
+                          <div className="flex items-center gap-4 mt-0.5 relative z-10">
+                            <span className="block text-[0.68rem] sm:text-[0.72rem] text-white/30 font-medium">
+                              {formatDate(score.created_at)}
+                            </span>
+                            {!isCurrentUser && user && (
+                              <button
+                                onClick={() => setReportModalUser(score)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[0.65rem] font-bold text-red-400/80 hover:text-red-400 cursor-pointer"
+                                title="Report User"
+                              >
+                                <AlertTriangle size={11} /> Report
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         {/* Elapsed Time */}
@@ -510,6 +546,56 @@ const Leaderboard = () => {
           )}
         </div>
       </div>
+
+      {/* Report Modal */}
+      {reportModalUser && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-[#070b19]/80 backdrop-blur-sm cursor-pointer" onClick={() => !submittingReport && setReportModalUser(null)} />
+          <div className="relative w-full max-w-[400px] bg-[rgba(15,23,42,0.97)] border border-red-500/30 shadow-[0_0_60px_rgba(239,68,68,0.15)] flex flex-col overflow-hidden p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertTriangle size={20} />
+                <h3 className="text-lg font-bold text-white">Report User</h3>
+              </div>
+              <button
+                onClick={() => setReportModalUser(null)}
+                disabled={submittingReport}
+                className="text-white/40 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-[0.85rem] text-white/60 mb-5">
+              Why are you reporting <strong className="text-white">{reportModalUser.profiles?.username || 'this user'}</strong>?
+            </p>
+
+            <div className="flex flex-col gap-2 mb-6">
+              {["Inappropriate Username", "Cheating or Impossible Score", "Harassment / Toxicity", "Other"].map(reason => (
+                <label key={reason} className="flex items-center gap-3 p-3 border border-white/10 bg-white/[0.02] cursor-pointer hover:bg-white/[0.05] transition-colors">
+                  <input 
+                    type="radio" 
+                    name="reportReason" 
+                    value={reason}
+                    checked={reportReason === reason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="accent-red-500 w-4 h-4"
+                  />
+                  <span className="text-[0.85rem] text-white/80">{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            <button
+              onClick={handleReportSubmit}
+              disabled={submittingReport || !reportReason}
+              className="w-full py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold border border-red-500/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submittingReport ? "Submitting..." : "Submit Report"}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
