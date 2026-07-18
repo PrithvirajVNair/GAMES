@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { Flag, MapPinned, Gamepad2, Grid3x3, Type, Megaphone, Users } from "lucide-react";
+import { Flag, MapPinned, Gamepad2, Grid3x3, Type, Megaphone, Users, Badge } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import countries from "../utils/countries";
 import { useAuth } from "../context/AuthContext";
@@ -8,6 +8,7 @@ import AnnouncementPopup from "../components/AnnouncementPopup";
 import AdminAnnouncementModal from "../components/AdminAnnouncementModal";
 import AdminUsersModal from "../components/AdminUsersModal";
 import AdminReportsModal from "../components/AdminReportsModal";
+import { getPendingReports } from "../services/adminService";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -18,6 +19,17 @@ const Home = () => {
   const [adminUsersModalOpen, setAdminUsersModalOpen] = useState(false);
   const [adminReportsModalOpen, setAdminReportsModalOpen] = useState(false);
   const isAdmin = session?.user?.email === "pals234.pvr@gmail.com";
+  const [pendingReports, setPendingReports] = useState([]);
+  const [reportStatus,setReportStatus] = useState(false);
+
+    const fetchReports = async () => {
+      try {
+        const list = await getPendingReports();
+        setPendingReports(list);
+      } catch (err) {
+        toast.error("Failed to load reports: " + err.message, { theme: "dark" });
+      }
+    };
 
   useEffect(() => {
     if (location.state?.openAdminModal && isAdmin) {
@@ -54,6 +66,10 @@ const Home = () => {
     }
   }, []);
 
+  useEffect(()=>{
+    fetchReports();
+  },[reportStatus])
+
   return (
     <>
       {/* Root */}
@@ -69,7 +85,7 @@ const Home = () => {
           {sidebarOpen ? "✕ Close" : "🎮 Games"}
         </button>
 
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} pendingReports={pendingReports} />
 
         {/* Shooting Stars */}
         <div className="absolute top-0 left-0 right-0 h-[142px] md:h-[360px] overflow-hidden pointer-events-none z-0">
@@ -309,13 +325,16 @@ const Home = () => {
       {isAdmin && (
         <>
           <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3">
-            <button
-              onClick={() => setAdminReportsModalOpen(true)}
-              className="bg-[linear-gradient(135deg,#ef4444,#dc2626)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_24px_rgba(239,68,68,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
-              title="Admin: View User Reports"
-            >
-              <Flag size={22} />
-            </button>
+            <div className="relative">
+              {pendingReports?.length>0 && <div className="absolute bg-red-500 h-4 w-4 rounded-full right-0 flex items-center justify-center text-xs text-white font-bold z-10">{pendingReports?.length}</div>}
+              <button
+                onClick={() => setAdminReportsModalOpen(true)}
+                className="bg-[linear-gradient(135deg,#ef4444,#dc2626)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_24px_rgba(239,68,68,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
+                title="Admin: View User Reports"
+              >
+                <Flag size={22} />
+              </button>
+            </div>
             <button
               onClick={() => setAdminUsersModalOpen(true)}
               className="bg-[linear-gradient(135deg,#ec4899,#f43f5e)] border-none text-white rounded-full p-4 shadow-[0_4px_18px_rgba(236,72,153,0.4)] hover:shadow-[0_6px_24px_rgba(236,72,153,0.6)] cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:scale-105 flex items-center justify-center"
@@ -342,6 +361,10 @@ const Home = () => {
           <AdminReportsModal
             isOpen={adminReportsModalOpen}
             onClose={() => setAdminReportsModalOpen(false)}
+            pendingReports={pendingReports}
+            setPendingReports={setPendingReports}
+            setReportStatus={setReportStatus}
+            reportStatus={reportStatus}
           />
         </>
       )}

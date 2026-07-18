@@ -22,7 +22,7 @@ import { useAuth } from "../context/AuthContext";
 import { UserBadgeIcon } from "../utils/badgeConfig";
 import { toast } from "react-toastify";
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, pendingReports }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, session, signOut } = useAuth();
@@ -306,21 +306,24 @@ const Sidebar = ({ isOpen, onClose }) => {
                   {/* Admin Announcements Link */}
                   {isAdmin && (
                     <>
-                      <button
-                        onClick={() => {
-                          navigate("/", { state: { openAdminReportsModal: true } });
-                          onClose();
-                        }}
-                        className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-red-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
-                      >
-                        <Flag
-                          size={18}
-                          className="flex-shrink-0 text-red-400"
-                        />
-                        <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
-                          User Reports
-                        </span>
-                      </button>
+                      <div className="relative">
+                        {pendingReports?.length>0 && <div className="absolute bg-red-500 h-4 w-4 rounded-full right-0 flex items-center justify-center text-xs text-white font-bold z-10">{pendingReports?.length}</div>}
+                        <button
+                          onClick={() => {
+                            navigate("/", { state: { openAdminReportsModal: true } });
+                            onClose();
+                          }}
+                          className="sidebar-menu-item w-full flex items-center gap-3 pl-4 pr-[1.1rem] py-3 border-l-2 border-l-transparent text-red-400 hover:bg-white/[0.04] hover:text-white cursor-pointer transition-all duration-200"
+                        >
+                          <Flag
+                            size={18}
+                            className="flex-shrink-0 text-red-400"
+                          />
+                          <span className="sidebar-text-label text-[0.88rem] font-bold whitespace-nowrap text-white/70">
+                            User Reports
+                          </span>
+                        </button>
+                      </div>
                       <button
                         onClick={() => {
                           navigate("/", { state: { openAdminModal: true } });
