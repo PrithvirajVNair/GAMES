@@ -19,7 +19,7 @@ class InputBehaviorAnalyzer {
       trustedInputEventCount: 0,
       timestamps: [],
       pasted: false,
-      focusCount: 0
+      focusCount: document.activeElement === inputElement ? 1 : 0
     };
 
     this.bindEvents();
@@ -113,8 +113,9 @@ class InputBehaviorAnalyzer {
     }
 
     // 4. Check for lack of focus
-    // A human has to click the field to type in it. A script can target it while hidden.
-    if (valueLength > 0 && this.metrics.focusCount === 0 && this.metrics.inputEventCount > 0) {
+    // A human has to click or focus the field (or have it auto-focused) to type in it.
+    const isCurrentlyFocused = document.activeElement === this.inputElement;
+    if (valueLength > 0 && this.metrics.focusCount === 0 && !isCurrentlyFocused && this.metrics.keydownCount === 0 && this.metrics.inputEventCount > 0) {
       isHuman = false;
       reasons.push("Input received data without the element ever being focused.");
     }
@@ -136,7 +137,7 @@ class InputBehaviorAnalyzer {
       trustedInputEventCount: 0,
       timestamps: [],
       pasted: false,
-      focusCount: 0
+      focusCount: document.activeElement === this.inputElement ? 1 : 0
     };
   }
 }
