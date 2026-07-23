@@ -11,7 +11,8 @@ import {
   playError as _playError,
 } from "../utils/sound";
 
-const TOTAL = logos.data.length;
+const logoList = logos.data;
+const TOTAL = logoList.length;
 const shuffle = (a) => {
   const arr = [...a];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -26,10 +27,20 @@ const LogoQuiz = () => {
     const saved = localStorage.getItem("logoQuiz");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        const validIds = new Set(logoList.map((l) => l.id));
+        if (
+          parsed &&
+          Array.isArray(parsed.remainingLogos) &&
+          parsed.remainingLogos.length <= TOTAL &&
+          parsed.remainingLogos.every((l) => validIds.has(l.id))
+        ) {
+          return parsed;
+        }
       } catch {}
+      localStorage.removeItem("logoQuiz");
     }
-    const s = shuffle(logos.data);
+    const s = shuffle(logoList);
     return { score: 0, remainingLogos: s, currentLogo: s[0], answer: "" };
   };
   const [quiz, setQuiz] = useState(getInitial);
@@ -162,7 +173,14 @@ const LogoQuiz = () => {
     if (!s) return false;
     try {
       const p = JSON.parse(s);
-      return p.remainingLogos && p.remainingLogos.length < TOTAL;
+      const validIds = new Set(logoList.map((l) => l.id));
+      return (
+        p.remainingLogos &&
+        Array.isArray(p.remainingLogos) &&
+        p.remainingLogos.length < TOTAL &&
+        p.remainingLogos.length > 0 &&
+        p.remainingLogos.every((l) => validIds.has(l.id))
+      );
     } catch {
       return false;
     }
@@ -257,7 +275,7 @@ const LogoQuiz = () => {
   const newGame = (resume = false) => {
     if (!resume) {
       localStorage.removeItem("logoQuiz");
-      const s = shuffle(logos.data);
+      const s = shuffle(logoList);
       setQuiz({ score: 0, remainingLogos: s, currentLogo: s[0], answer: "" });
     }
     localStorage.setItem("logoQuizStartTime", Date.now().toString());
@@ -296,9 +314,14 @@ const LogoQuiz = () => {
     `${Math.floor(s / 60)
       .toString()
       .padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
-  const progress = ((TOTAL - quiz.remainingLogos.length) / TOTAL) * 100;
-  const hintText = `${quiz.currentLogo.name[0]}${"_ ".repeat(quiz.currentLogo.name.length - 1).trim()} (${quiz.currentLogo.name.length} letters)`;
-  const logoUrl = `https://logo.clearbit.com/${quiz.currentLogo.domain}`;
+  const remLen = quiz.remainingLogos ? quiz.remainingLogos.length : 0;
+  const progress = Math.max(0, Math.min(100, ((TOTAL - remLen) / TOTAL) * 100));
+  const hintText = quiz.currentLogo
+    ? `${quiz.currentLogo.name[0]}${"_ ".repeat(quiz.currentLogo.name.length - 1).trim()} (${quiz.currentLogo.name.length} letters)`
+    : "";
+  const logoUrl = quiz.currentLogo
+    ? `https://logo.clearbit.com/${quiz.currentLogo.domain}`
+    : "";
 
   const btnBase =
     "py-3 px-2 rounded-xl text-[0.88rem] font-bold cursor-pointer border-none transition-all duration-150 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed tracking-wide";
@@ -478,16 +501,16 @@ const LogoQuiz = () => {
                 <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                   <Building2 size={48} className="text-slate-300" />
                   <span className="text-sm font-medium">
-                    {quiz.currentLogo.name}
+                    {quiz.currentLogo?.name}
                   </span>
                 </div>
               ) : (
                 <img
-                  key={quiz.currentLogo.id}
+                  key={quiz.currentLogo?.id}
                   src={
-                    quiz.currentLogo.name == "ZeroSignal"
-                      ? `/logos/${quiz.currentLogo.name}.png`
-                      : `https://img.logo.dev/${quiz.currentLogo.domain}?token=${import.meta.env.VITE_LOGO_DEV_PUBLISHABLE_KEY}&type=icon`
+                    quiz.currentLogo?.name == "ZeroSignal"
+                      ? `/logos/${quiz.currentLogo?.name}.png`
+                      : `https://img.logo.dev/${quiz.currentLogo?.domain}?token=${import.meta.env.VITE_LOGO_DEV_PUBLISHABLE_KEY}&type=icon`
                   }
                   alt="Guess this logo"
                   className={`w-1/2 h-1/2 object-contain transition-opacity duration-[400ms] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
@@ -515,14 +538,14 @@ const LogoQuiz = () => {
             <div className="mb-1 text-center">
               <span
                 className={`text-[0.72rem] font-bold uppercase tracking-widest border border-white/20 rounded-full px-3 py-1 ${
-                  quiz.currentLogo.difficulty === "Hard"
+                  quiz.currentLogo?.difficulty === "Hard"
                     ? "text-red-400 bg-red-500/15"
-                    : quiz.currentLogo.difficulty === "Medium"
+                    : quiz.currentLogo?.difficulty === "Medium"
                       ? "text-amber-300 bg-amber-500/12"
                       : "text-green-300 bg-green-500/12"
                 }`}
               >
-                {quiz.currentLogo.difficulty}
+                {quiz.currentLogo?.difficulty}
               </span>
             </div>
 
@@ -544,7 +567,7 @@ const LogoQuiz = () => {
 
             <div className="text-[0.78rem] text-violet-300/80 tracking-wide min-h-[1.2rem] mb-5 text-center font-medium">
               {hint ? (
-                `💡 Hint: ${hintText}, Category: ${quiz.currentLogo.category}`
+                `💡 Hint: ${hintText}, Category: ${quiz.currentLogo?.category}`
               ) : (
                 <span className="text-transparent">‎</span>
               )}
